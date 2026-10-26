@@ -84,6 +84,7 @@ window.Arcade = (function () {
     stil = waarde;
     bewaar("stil", stil);
     speelMuziek();
+    toonMelding();
   }
 
   function naarMenu() {
@@ -109,6 +110,7 @@ window.Arcade = (function () {
     muziekUit = waarde;
     bewaar("muziekUit", muziekUit);
     speelMuziek();
+    toonMelding();
   }
 
   function bewaarMuziekTijd() {
@@ -117,10 +119,31 @@ window.Arcade = (function () {
   setInterval(bewaarMuziekTijd, 1000);
   window.addEventListener("pagehide", bewaarMuziekTijd);
 
+  // Browsers blokkeren geluid tot de bezoeker klikt, tikt of een toets indrukt. Welke gebeurtenis
+  // telt verschilt per browser (op een telefoon pas bij het loslaten), dus we proberen het bij allemaal.
   speelMuziek();
-  ["pointerdown", "keydown"].forEach((soort) => {
+  ["pointerdown", "pointerup", "mousedown", "touchend", "click", "keydown", "keyup"].forEach((soort) => {
     window.addEventListener(soort, () => { if (muziek.paused) speelMuziek(); }, true);
   });
+
+  // Melding zolang de browser de muziek nog tegenhoudt
+  let melding = null;
+  function toonMelding() {
+    if (!document.body) return;
+    if (!melding) {
+      melding = document.createElement("div");
+      melding.textContent = "♪ KLIK OF DRUK OP EEN TOETS VOOR MUZIEK ♪";
+      melding.style.cssText = `position: fixed; left: 50%; top: 10px; transform: translateX(-50%); z-index: 30;
+        font: 10px ${'"Press Start 2P", "Courier New", monospace'}; color: #0b0b1e; background: #ffe14d;
+        border: 3px solid #000; padding: 8px 12px; pointer-events: none; text-align: center; max-width: 90vw;`;
+      document.body.appendChild(melding);
+    }
+    melding.style.display = muziek.paused && !stil && !muziekUit ? "block" : "none";
+  }
+  muziek.addEventListener("playing", toonMelding);
+  muziek.addEventListener("pause", toonMelding);
+  // Even wachten: als de browser autoplay toestaat, speelt de muziek dan al en is de melding niet nodig
+  setTimeout(toonMelding, 800);
 
   // --- Pauzemenu (Esc of de pauzeknop) ---
   let gepauzeerd = false;
@@ -284,6 +307,7 @@ window.Arcade = (function () {
     isStil: () => stil,
     zetStil,
     isMuziekUit: () => muziekUit,
+    muziekSpeelt: () => !muziek.paused,
     zetMuziekUit,
     gepauzeerd: () => gepauzeerd,
     naarMenu,
