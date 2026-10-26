@@ -460,7 +460,7 @@
   // --- Hoofdlus ---
   let vorige = performance.now();
   function lus(nu) {
-    const dt = Math.min((nu - vorige) / 1000, 1 / 30); // geen gekke sprongen na een hapering
+    const dt = Math.max(0, Math.min((nu - vorige) / 1000, 1 / 30)); // geen gekke sprongen na een hapering
     vorige = nu;
     update(dt);
     teken();

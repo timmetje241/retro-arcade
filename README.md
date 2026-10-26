@@ -1,4 +1,4 @@
-# Retro Arcade
+# Jessy's Arcade (33rd birthday edition)
 
 Een kleine retro spelhal in de browser, gemaakt als verjaardagscadeau. 🎂
 
@@ -23,10 +23,13 @@ Ga daarna naar http://localhost:8765.
 | Flappy Koe | Spatie / klik / tik | Vliegen |
 | Flappy Koe | M | Geluid aan/uit |
 | Flappy Koe | Esc | Terug naar het menu |
+| Gains Snake | Pijltjes / WASD / vegen | Sturen |
+| Gains Snake | P | Pauze |
 
 ## Spellen
 
 - **Flappy Koe**: vlieg een koe tussen de VIBECODE-pijpen door. Haal een bronzen, zilveren, gouden of platina koebel!
+- **Gains Snake**: snake met Jessy als hoofd. Zijn staart groeit met potjes kwark, creatine en biertjes.
 
 ## Hoe het in elkaar zit
 
