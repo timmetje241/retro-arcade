@@ -7,7 +7,9 @@
   const RECORD_SLEUTEL = "tapper.record";
   const tekst = (...a) => Arcade.tekst(c, ...a);
   Arcade.schaalCanvas(canvas);
-  const gezicht = Arcade.gezichten()[1];
+  // Bij elk getapt biertje staat er een ander gezicht van Jessy achter de bar
+  const gezichten = Arcade.gezichten();
+  let gezicht = gezichten[1];
 
   // --- De bar ---
   const BARS = [230, 350, 470, 590];   // bovenkant van elke bar
@@ -153,6 +155,7 @@
         klant.blij = true;
         klant.v = -160;
         score++;
+        gezicht = Arcade.anderGezicht(gezichten, gezicht);
         kreten.push({ tekst: willekeurig(KRETEN), x: klant.x, y: BARS[b.bar] - 80, leeftijd: 0 });
         Arcade.toon({ type: "square", van: 784, duur: 0.08, volume: 0.1 });
         Arcade.toon({ type: "square", van: 1047, duur: 0.15, volume: 0.1, vertraging: 0.08 });

@@ -8,7 +8,9 @@
   const RECORD_SLEUTEL = "protein-catcher.record";
   const tekst = (...a) => Arcade.tekst(c, ...a);
   Arcade.schaalCanvas(canvas);
-  const gezicht = Arcade.gezichten()[3];
+  // Bij elke vangst een ander gezicht van Jessy
+  const gezichten = Arcade.gezichten();
+  let gezicht = gezichten[3];
 
   // --- Spelregels ---
   const LOOPSNELHEID = 430;
@@ -139,6 +141,7 @@
       if (levens <= 0) einde();
     } else {
       score += s.punten;
+      gezicht = Arcade.anderGezicht(gezichten, gezicht);
       Arcade.toon({ type: "square", van: 600 + s.punten * 150, naar: 1200 + s.punten * 200, duur: 0.1, volume: 0.1 });
     }
   }

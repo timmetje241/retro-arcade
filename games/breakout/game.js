@@ -7,7 +7,9 @@
   const RECORD_SLEUTEL = "breakout.record";
   const tekst = (...a) => Arcade.tekst(c, ...a);
   Arcade.schaalCanvas(canvas);
-  const gezicht = Arcade.gezichten()[0];
+  // De bal krijgt bij elke tik tegen de peddel een ander gezicht van Jessy
+  const gezichten = Arcade.gezichten();
+  let gezicht = gezichten[0];
 
   // --- Speelveld ---
   const WOORD = "VIBECODE";
@@ -199,6 +201,7 @@
         bal.vx = Math.cos(hoek) * balSnelheid();
         bal.vy = Math.sin(hoek) * balSnelheid();
         bal.y = PEDDEL_Y - BAL_R;
+        gezicht = Arcade.anderGezicht(gezichten, gezicht);
         Arcade.toon({ type: "square", van: 220, duur: 0.06, volume: 0.1 });
       }
 

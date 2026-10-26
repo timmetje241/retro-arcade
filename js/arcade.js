@@ -387,6 +387,12 @@ window.Arcade = (function () {
     });
   }
 
+  // Een willekeurig gezicht dat niet het huidige is, zodat ze steeds rouleren
+  function anderGezicht(lijst, huidig) {
+    const keuze = lijst.filter((g) => g !== huidig);
+    return keuze[Math.floor(Math.random() * keuze.length)];
+  }
+
   // Tekent een rond plaatje als het geladen is
   function plaatje(c, img, x, y, straal) {
     if (img.complete && img.naturalWidth) c.drawImage(img, x - straal, y - straal, straal * 2, straal * 2);
@@ -426,6 +432,7 @@ window.Arcade = (function () {
     schaalCanvas,
     tekst,
     gezichten,
+    anderGezicht,
     plaatje,
     lus
   };

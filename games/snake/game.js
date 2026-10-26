@@ -23,8 +23,9 @@
     bier: ["PROOST!", "BIERTJE!", "SANTÉ!"]
   };
 
-  const hoofd = new Image();
-  hoofd.src = "hoofd.png";
+  // Bij elke hap krijgt de slang een ander gezicht van Jessy
+  const gezichten = Arcade.gezichten();
+  let hoofd = gezichten[0];
 
   function pasAan() {
     const schaal = Math.min(window.innerWidth / W, window.innerHeight / H);
@@ -167,6 +168,7 @@
 
     if (eet) {
       soorten.push(eten.soort);
+      hoofd = Arcade.anderGezicht(gezichten, hoofd);
       score++;
       hapGeluid(eten.soort);
       const opties = KREETJES[eten.soort];
