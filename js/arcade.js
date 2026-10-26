@@ -191,19 +191,26 @@ window.Arcade = (function () {
     document.body.appendChild(pauzeLaag);
   }
 
+  // De knoppen worden één keer gemaakt en daarna alleen bijgewerkt. Opnieuw opbouwen onder de muis
+  // zou de knop tussen indrukken en loslaten vervangen, en dan komt een klik nooit aan.
+  let keuzeKnoppen = [];
   function tekenKeuzes() {
-    const lijst = pauzeLaag.querySelector(".keuzes");
-    lijst.innerHTML = "";
-    lijst.style.display = "flex";
-    lijst.style.flexDirection = "column";
-    lijst.style.gap = "12px";
-    KEUZES.forEach((k, i) => {
-      const b = document.createElement("button");
-      b.textContent = k.tekst();
+    if (!keuzeKnoppen.length) {
+      const lijst = pauzeLaag.querySelector(".keuzes");
+      lijst.style.display = "flex";
+      lijst.style.flexDirection = "column";
+      lijst.style.gap = "12px";
+      keuzeKnoppen = KEUZES.map((k, i) => {
+        const b = document.createElement("button");
+        b.addEventListener("click", () => { keuze = i; kies(); });
+        b.addEventListener("mouseenter", () => { keuze = i; tekenKeuzes(); });
+        lijst.appendChild(b);
+        return b;
+      });
+    }
+    keuzeKnoppen.forEach((b, i) => {
+      b.textContent = KEUZES[i].tekst();
       b.classList.toggle("gekozen", i === keuze);
-      b.addEventListener("click", () => { keuze = i; kies(); });
-      b.addEventListener("mouseenter", () => { keuze = i; tekenKeuzes(); });
-      lijst.appendChild(b);
     });
   }
 
