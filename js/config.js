@@ -23,12 +23,36 @@ window.ARCADE_CONFIG = {
       icoon: "🐍"
     },
     {
-      id: "binnenkort-2",
-      naam: "???",
-      beschrijving: "Binnenkort...",
-      pad: null,
-      kleur: "#555",
-      icoon: "🔒"
+      id: "protein-catcher",
+      naam: "PROTEIN CATCHER",
+      beschrijving: "Vang kwark en creatine, ontwijk pizza en donuts",
+      pad: "games/protein-catcher/index.html",
+      kleur: "#3ef0ff",
+      icoon: "💪"
+    },
+    {
+      id: "tapper",
+      naam: "BIER TAPPER",
+      beschrijving: "Tap biertjes voor dorstige gasten in Cafe Jessy",
+      pad: "games/tapper/index.html",
+      kleur: "#f2a900",
+      icoon: "🍺"
+    },
+    {
+      id: "breakout",
+      naam: "JESSY BREAKOUT",
+      beschrijving: "Knal de VIBECODE-blokjes kapot met Jessy's hoofd",
+      pad: "games/breakout/index.html",
+      kleur: "#b06cff",
+      icoon: "🧱"
+    },
+    {
+      id: "whack",
+      naam: "WHACK-A-JESSY",
+      beschrijving: "Mep Jessy terug zijn hol in, maar niet de koe",
+      pad: "games/whack/index.html",
+      kleur: "#ff3e5a",
+      icoon: "🔨"
     }
   ]
 };

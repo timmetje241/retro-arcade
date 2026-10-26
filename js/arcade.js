@@ -81,6 +81,60 @@ window.Arcade = (function () {
     bewaar("stil", stil);
   }
 
+  // --- Tekenhulpjes voor canvas-spellen ---
+  const FONT = '"Press Start 2P", "Courier New", monospace';
+
+  // Laat het canvas meeschalen met het venster, met dezelfde verhouding.
+  function schaalCanvas(canvas) {
+    const pasAan = () => {
+      const schaal = Math.min(window.innerWidth / canvas.width, window.innerHeight / canvas.height);
+      canvas.style.width = Math.floor(canvas.width * schaal) + "px";
+      canvas.style.height = Math.floor(canvas.height * schaal) + "px";
+    };
+    window.addEventListener("resize", pasAan);
+    pasAan();
+  }
+
+  // Pixeltekst met een zwarte rand
+  function tekst(c, woord, x, y, grootte, kleur = "#fff", uitlijning = "center") {
+    c.font = `${grootte}px ${FONT}`;
+    c.textAlign = uitlijning;
+    c.textBaseline = "middle";
+    c.lineJoin = "round";
+    c.lineWidth = Math.max(3, grootte / 3);
+    c.strokeStyle = "#000";
+    c.strokeText(woord, x, y);
+    c.fillStyle = kleur;
+    c.fillText(woord, x, y);
+  }
+
+  // De vier gezichten van de jarige (img/jessy-1.png t/m jessy-4.png)
+  function gezichten() {
+    return [1, 2, 3, 4].map((n) => {
+      const img = new Image();
+      img.src = `../../img/jessy-${n}.png`;
+      return img;
+    });
+  }
+
+  // Tekent een rond plaatje als het geladen is
+  function plaatje(c, img, x, y, straal) {
+    if (img.complete && img.naturalWidth) c.drawImage(img, x - straal, y - straal, straal * 2, straal * 2);
+  }
+
+  // Hoofdlus: roept elke frame update(dt) en teken() aan
+  function lus(update, teken) {
+    let vorige = performance.now();
+    function stap(nu) {
+      const dt = Math.max(0, Math.min((nu - vorige) / 1000, 1 / 30));
+      vorige = nu;
+      update(dt);
+      teken();
+      requestAnimationFrame(stap);
+    }
+    requestAnimationFrame(stap);
+  }
+
   return {
     lees,
     bewaar,
@@ -88,6 +142,12 @@ window.Arcade = (function () {
     ruis,
     isStil: () => stil,
     zetStil,
-    naarMenu: () => { window.location.href = "../../index.html"; }
+    naarMenu: () => { window.location.href = "../../index.html"; },
+    FONT,
+    schaalCanvas,
+    tekst,
+    gezichten,
+    plaatje,
+    lus
   };
 })();

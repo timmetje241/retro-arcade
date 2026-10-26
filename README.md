@@ -25,11 +25,22 @@ Ga daarna naar http://localhost:8765.
 | Flappy Koe | Esc | Terug naar het menu |
 | Gains Snake | Pijltjes / WASD / vegen | Sturen |
 | Gains Snake | P | Pauze |
+| Protein Catcher | Pijltjes / muis / vinger | Lopen |
+| Bier Tapper | Omhoog / omlaag | Bar kiezen |
+| Bier Tapper | Spatie / tik op een bar | Bier tappen |
+| Jessy Breakout | Muis / vinger / pijltjes | Peddel bewegen |
+| Jessy Breakout | Spatie / klik | Bal schieten |
+| Whack-a-Jessy | Klik / tik, of QWE ASD ZXC | Meppen |
+| Alle spellen | M / Esc | Geluid aan/uit / terug naar menu |
 
 ## Spellen
 
 - **Flappy Koe**: vlieg een koe tussen de VIBECODE-pijpen door. Haal een bronzen, zilveren, gouden of platina koebel!
 - **Gains Snake**: snake met Jessy als hoofd. Zijn staart groeit met potjes kwark, creatine en biertjes.
+- **Protein Catcher**: vang kwark, creatine en halters, maar laat pizza en donuts vallen.
+- **Bier Tapper**: tap biertjes voor dorstige gasten in Cafe Jessy, zonder glazen te breken.
+- **Jessy Breakout**: Jessy's hoofd is de bal, de blokjes spellen VIBECODE. Met bonussen!
+- **Whack-a-Jessy**: 30 seconden lang Jessy terug zijn hol in meppen. Niet de koe raken!
 
 ## Hoe het in elkaar zit
 
@@ -37,9 +48,11 @@ Ga daarna naar http://localhost:8765.
 index.html              startscherm
 css/style.css           opmaak van het startscherm
 js/config.js            titel en de lijst met spellen
-js/arcade.js            gedeelde hulpjes: records, geluid, terug naar menu
+js/arcade.js            gedeelde hulpjes: records, geluid, tekst, schalen, hoofdlus
+js/tekeningen.js        getekende kwark, creatine, bier, pizza, donut en halter
+img/                    de gezichten van Jessy
 js/menu.js              logica van het startscherm
-games/flappy-koe/       het spel Flappy Koe
+games/<spel>/           elk spel in een eigen map
 ```
 
 Er zijn geen frameworks of build-stappen nodig: het is gewone HTML, CSS en JavaScript.

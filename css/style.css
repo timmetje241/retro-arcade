@@ -12,7 +12,6 @@
 
 html, body {
   margin: 0;
-  height: 100%;
   background: var(--achtergrond);
   color: var(--tekst);
   font-family: var(--font);
