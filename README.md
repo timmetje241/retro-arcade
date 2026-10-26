@@ -43,7 +43,7 @@ Ga daarna naar http://localhost:8765.
 
 ## Muziek
 
-Op de achtergrond speelt een 8-bit versie (11 kHz, 8 bits) van de "Polish cow": *Gdzie jest biały węgorz? (Zejście)* van Cypis. De muziek loopt door als je van spel wisselt. Browsers starten geluid pas na de eerste klik of toets.
+Op de achtergrond speelt een 8-bit versie van de "Polish cow" (`muziek/polish-cow-8bit.mp3`): *Gdzie jest biały węgorz? (Zejście)* van Cypis. De muziek loopt door als je van spel wisselt. Browsers starten geluid pas na de eerste klik of toets.
 
 ## Hoe het in elkaar zit
 

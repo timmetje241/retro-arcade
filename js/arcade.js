@@ -92,7 +92,7 @@ window.Arcade = (function () {
 
   // --- Achtergrondmuziek (loopt door van pagina naar pagina) ---
   let muziekUit = lees("muziekUit", false);
-  const muziek = new Audio(new URL("muziek/polish-cow-8bit.wav", BASIS).href);
+  const muziek = new Audio(new URL("muziek/polish-cow-8bit.mp3", BASIS).href);
   muziek.loop = true;
   muziek.volume = 0.35;
   muziek.addEventListener("loadedmetadata", () => {
