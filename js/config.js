@@ -6,8 +6,8 @@ window.ARCADE_CONFIG = {
   // Gedeelde highscores via Supabase (zie README). Leeg laten = alleen records op het eigen apparaat.
   // De "publishable"/"anon" sleutel is bedoeld om openbaar in een website te staan.
   highscores: {
-    url: "",
-    sleutel: ""
+    url: "https://kykyxbophrwvvmmnvvwi.supabase.co",
+    sleutel: "sb_publishable_OftpBLI-ocgGPqvAlmiJJA_4wauwZ39"
   },
 
   // Elk spel krijgt een tegel in het startscherm.
