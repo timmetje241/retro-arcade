@@ -378,9 +378,9 @@ window.Arcade = (function () {
     c.fillText(woord, x, y);
   }
 
-  // De vier gezichten van de jarige (img/jessy-1.png t/m jessy-4.png)
+  // De gezichten van de jarige (img/jessy-1.png t/m jessy-5.png)
   function gezichten() {
-    return [1, 2, 3, 4].map((n) => {
+    return [1, 2, 3, 4, 5].map((n) => {
       const img = new Image();
       img.src = `../../img/jessy-${n}.png`;
       return img;
