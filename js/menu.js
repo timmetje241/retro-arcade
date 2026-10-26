@@ -54,6 +54,7 @@
 
   document.addEventListener("keydown", (e) => {
     if (e.code === "KeyM") { wisselGeluid(); return; }
+    if (e.code === "KeyH") { window.location.href = "highscores.html"; return; }
     const plek = speelbaar.indexOf(gekozen);
     if (e.key === "ArrowRight" || e.key === "ArrowDown") {
       kies(speelbaar[(plek + 1) % speelbaar.length]);

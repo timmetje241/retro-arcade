@@ -191,6 +191,7 @@
       nieuwRecord = true;
       Arcade.bewaar(RECORD_SLEUTEL, record);
     }
+    Arcade.vraagNaam("snake", score);
   }
 
   function update(dt) {

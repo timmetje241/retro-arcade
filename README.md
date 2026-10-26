@@ -31,6 +31,7 @@ Ga daarna naar http://localhost:8765.
 | Whack-a-Jessy | Klik / tik, of QWE ASD ZXC | Meppen |
 | Alle spellen | Esc / pauzeknop (rechtsonder) | Pauzemenu: verder, geluid, muziek, opnieuw, naar menu |
 | Overal | M | Geluid aan/uit |
+| Menu | H | Highscores bekijken |
 
 ## Spellen
 
@@ -45,10 +46,27 @@ Ga daarna naar http://localhost:8765.
 
 Op de achtergrond speelt een 8-bit versie van de "Polish cow" (`muziek/polish-cow-8bit.mp3`): *Gdzie jest biały węgorz? (Zejście)* van Cypis. De muziek loopt door als je van spel wisselt. Browsers starten geluid pas na de eerste klik of toets.
 
+## Gedeelde highscores
+
+Na een game over vraagt het spel om je naam als je score in de top 10 komt. Op `highscores.html` (of toets **H** in het menu) staat per spel de top 10 van iedereen.
+
+De scores staan in een gratis [Supabase](https://supabase.com)-database. Zo zet je die aan:
+
+1. Maak een gratis account en een nieuw project op supabase.com.
+2. Open **SQL Editor**, plak de inhoud van `supabase/scores.sql` en klik op **Run**.
+3. Ga naar **Project Settings → API** (of **API Keys**) en kopieer de **Project URL** en de **publishable/anon key**.
+4. Vul die in bij `highscores` in `js/config.js`.
+
+De anon/publishable sleutel is bedoeld om openbaar in een website te staan: hij kan alleen scores lezen en toevoegen, niet wijzigen of verwijderen. Gebruik nooit de **service_role/secret** sleutel. Valsspelen (een nep-score insturen) is wel mogelijk; voor een verjaardagsspel is dat prima.
+
+Zonder instellingen werkt alles gewoon, alleen met records op het eigen apparaat.
+
 ## Hoe het in elkaar zit
 
 ```
 index.html              startscherm
+highscores.html         overzicht van de gedeelde highscores (js/scorebord.js)
+supabase/scores.sql     de database-tabel voor de highscores
 css/style.css           opmaak van het startscherm
 js/config.js            titel en de lijst met spellen
 js/arcade.js            gedeelde hulpjes: records, geluid, tekst, schalen, hoofdlus

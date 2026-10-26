@@ -152,6 +152,7 @@
       nieuwRecord = true;
       Arcade.bewaar(RECORD_SLEUTEL, record);
     }
+    Arcade.vraagNaam("protein-catcher", score);
   }
 
   // --- Tekenen ---

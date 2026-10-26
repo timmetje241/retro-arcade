@@ -172,6 +172,8 @@ window.Arcade = (function () {
         padding: 14px 10px; cursor: pointer; }
       .pauze-doos button.gekozen { background: #3ef0ff; color: #0b0b1e; }
       .pauze-doos p { margin: 8px 0 0; font-size: 8px; color: #8a8aa8; line-height: 1.8; }
+      .pauze-doos .naam-vak { font: 16px ${FONT}; text-align: center; text-transform: uppercase; padding: 12px;
+        background: #0b0b1e; color: #ffe14d; border: 3px solid #ffe14d; outline: none; }
     `;
     document.head.appendChild(stijl);
 
@@ -226,6 +228,13 @@ window.Arcade = (function () {
   // Luistert vóór de spellen zelf, zodat toetsen in het pauzemenu niet bij het spel aankomen
   window.addEventListener("keydown", (e) => {
     if (!IS_SPEL) return;
+    if (naamLaag && naamLaag.classList.contains("open")) {
+      // Typen in het naamvak mag gewoon, maar het spel hoort er niets van
+      e.stopImmediatePropagation();
+      if (e.code === "Enter") { e.preventDefault(); naamKlaar(true); }
+      else if (e.code === "Escape") { e.preventDefault(); naamKlaar(false); }
+      return;
+    }
     if (!gepauzeerd) {
       if (e.code === "Escape") {
         e.preventDefault();
@@ -242,6 +251,98 @@ window.Arcade = (function () {
     else if (e.code === "ArrowDown" || e.code === "KeyS") { keuze = (keuze + 1) % KEUZES.length; tekenKeuzes(); }
     else if (e.code === "Enter" || e.code === "Space") kies();
   }, true);
+
+  // --- Gedeelde highscores (Supabase, zie README) ---
+  const TOP = 10;
+
+  function highscoreInstelling() {
+    const h = window.ARCADE_CONFIG && window.ARCADE_CONFIG.highscores;
+    return h && h.url && h.sleutel ? h : null;
+  }
+
+  async function highscoreVerzoek(pad, opties = {}) {
+    const h = highscoreInstelling();
+    const antwoord = await fetch(h.url.replace(/\/$/, "") + "/rest/v1/" + pad, {
+      ...opties,
+      headers: { apikey: h.sleutel, "Content-Type": "application/json", ...(opties.headers || {}) }
+    });
+    if (!antwoord.ok) throw new Error("Highscores: " + antwoord.status);
+    return antwoord.status === 204 || antwoord.status === 201 ? null : antwoord.json();
+  }
+
+  // De beste scores van één spel, hoogste eerst
+  function topScores(spel) {
+    if (!highscoreInstelling()) return Promise.resolve([]);
+    return highscoreVerzoek(`scores?select=naam,score,gemaakt&spel=eq.${encodeURIComponent(spel)}&order=score.desc,gemaakt.asc&limit=${TOP}`);
+  }
+
+  function stuurScore(spel, naam, score) {
+    return highscoreVerzoek("scores", {
+      method: "POST",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ spel, naam, score })
+    });
+  }
+
+  // Naam-invoer na een game over, als de score in de top 10 komt
+  let naamLaag = null;
+  let naamKlaar = () => {};
+
+  function maakNaamLaag() {
+    naamLaag = document.createElement("div");
+    naamLaag.className = "pauze-laag";
+    naamLaag.innerHTML = `<div class="pauze-doos">
+      <h2>HIGHSCORE!</h2>
+      <p class="naam-info" style="font-size: 12px; color: #fff; line-height: 2;"></p>
+      <input class="naam-vak" maxlength="12" autocomplete="off" spellcheck="false" aria-label="Je naam">
+      <div class="keuzes" style="display: flex; flex-direction: column; gap: 12px;">
+        <button class="gekozen opslaan">OPSLAAN</button>
+        <button class="overslaan">OVERSLAAN</button>
+      </div>
+      <p>ENTER = OPSLAAN<br>ESC = OVERSLAAN</p></div>`;
+    document.body.appendChild(naamLaag);
+    naamLaag.querySelector(".opslaan").addEventListener("click", () => naamKlaar(true));
+    naamLaag.querySelector(".overslaan").addEventListener("click", () => naamKlaar(false));
+  }
+
+  async function vraagNaam(spel, score) {
+    if (!highscoreInstelling() || score <= 0) return;
+    let lijst;
+    try {
+      lijst = await topScores(spel);
+    } catch (e) {
+      return; // geen internet of database niet bereikbaar: dan maar geen gedeelde highscore
+    }
+    if (lijst.length >= TOP && score <= lijst[lijst.length - 1].score) return;
+    const plek = lijst.filter((s) => s.score >= score).length + 1;
+
+    if (!naamLaag) maakNaamLaag();
+    const vak = naamLaag.querySelector(".naam-vak");
+    naamLaag.querySelector(".naam-info").innerHTML = `SCORE ${score}<br>PLEK #${plek} VAN DE WERELD`;
+    vak.value = lees("naam", "");
+    naamLaag.classList.add("open");
+    setTimeout(() => { vak.focus(); vak.select(); }, 50);
+
+    naamKlaar = async (opslaan) => {
+      const naam = vak.value.trim().toUpperCase().slice(0, 12);
+      if (opslaan && !naam) { vak.focus(); return; }
+      naamKlaar = () => {};
+      if (opslaan) {
+        bewaar("naam", naam);
+        naamLaag.querySelector(".naam-info").textContent = "OPSLAAN...";
+        try {
+          await stuurScore(spel, naam, score);
+          naamLaag.querySelector(".naam-info").textContent = "OPGESLAGEN!";
+          toon({ type: "square", van: 660, naar: 1320, duur: 0.2, volume: 0.1 });
+        } catch (e) {
+          naamLaag.querySelector(".naam-info").textContent = "MISLUKT, PROBEER LATER";
+        }
+        await new Promise((r) => setTimeout(r, 900));
+      }
+      naamLaag.classList.remove("open");
+      vak.blur();
+    };
+  }
 
   // --- Tekenhulpjes voor canvas-spellen ---
   const FONT = '"Press Start 2P", "Courier New", monospace';
@@ -310,6 +411,9 @@ window.Arcade = (function () {
     muziekSpeelt: () => !muziek.paused,
     zetMuziekUit,
     gepauzeerd: () => gepauzeerd,
+    highscoresAan: () => !!highscoreInstelling(),
+    topScores,
+    vraagNaam,
     naarMenu,
     FONT,
     schaalCanvas,

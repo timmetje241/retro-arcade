@@ -3,6 +3,13 @@ window.ARCADE_CONFIG = {
   titel: "JESSY'S ARCADE",
   ondertitel: "33RD BIRTHDAY EDITION",
 
+  // Gedeelde highscores via Supabase (zie README). Leeg laten = alleen records op het eigen apparaat.
+  // De "publishable"/"anon" sleutel is bedoeld om openbaar in een website te staan.
+  highscores: {
+    url: "",
+    sleutel: ""
+  },
+
   // Elk spel krijgt een tegel in het startscherm.
   // pad: map van het spel (met daarin een index.html), of null voor "binnenkort".
   spellen: [

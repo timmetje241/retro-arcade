@@ -238,6 +238,7 @@
       botsing();
       toestand = "einde";
       eindeSinds = tijd;
+      Arcade.vraagNaam("flappy-koe", score);
     }
   }
 

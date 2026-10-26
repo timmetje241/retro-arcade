@@ -216,6 +216,7 @@
             nieuwRecord = true;
             Arcade.bewaar(RECORD_SLEUTEL, record);
           }
+          Arcade.vraagNaam("breakout", score);
         } else {
           kreten.push({ tekst: "AU!", x: W / 2, y: H / 2, leeftijd: 0 });
           balOpPeddel();
