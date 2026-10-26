@@ -73,7 +73,6 @@
       e.preventDefault();
       if (!e.repeat && !start()) tap();
     }
-    else if (e.code === "Escape") Arcade.naarMenu();
     else if (e.code === "KeyM") Arcade.zetStil(!Arcade.isStil());
   });
 
@@ -278,7 +277,7 @@
       tekst("SPATIE = TAPPEN", W / 2, 465, 10, "#3ef0ff");
       tekst("OF TIK OP EEN BAR", W / 2, 490, 10, "#3ef0ff");
       tekst("SPATIE = START", W / 2, 560, 16);
-      tekst("ESC = MENU   M = GELUID", W / 2, 690, 10, "#ddd");
+      tekst("ESC = PAUZE   M = GELUID", W / 2, 690, 10, "#ddd");
     } else if (toestand === "einde") {
       c.fillStyle = "rgba(0, 0, 0, 0.65)";
       c.fillRect(0, 0, W, H);
@@ -288,7 +287,7 @@
       tekst("RECORD " + record, W / 2, 395, 20, "#3ef0ff");
       if (nieuwRecord) tekst("NIEUW RECORD!", W / 2, 440, 14, "#ff3ea5");
       if (tijd - eindeSinds > 0.8 && Math.floor(tijd * 2) % 2 === 0) tekst("SPATIE = OPNIEUW", W / 2, 520, 16);
-      tekst("ESC = MENU", W / 2, 570, 12, "#ddd");
+      tekst("ESC = PAUZE", W / 2, 570, 12, "#ddd");
     }
     c.restore();
   }

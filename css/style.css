@@ -126,7 +126,19 @@ h1 {
   opacity: 0.5;
 }
 
+.geluid-knop {
+  font: 10px var(--font);
+  color: var(--tekst);
+  background: transparent;
+  border: 3px solid var(--neon-roze);
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.geluid-knop:hover { background: var(--neon-roze); }
+
 .hulp {
+  align-items: center;
   margin-top: 40px;
   display: flex;
   justify-content: center;

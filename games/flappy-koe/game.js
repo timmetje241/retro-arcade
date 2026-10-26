@@ -135,8 +135,6 @@
     if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW" || e.code === "Enter") {
       e.preventDefault();
       vlieg();
-    } else if (e.code === "Escape") {
-      Arcade.naarMenu();
     } else if (e.code === "KeyM") {
       Arcade.zetStil(!Arcade.isStil());
     }
@@ -418,7 +416,7 @@
     if (tijd - eindeSinds > 0.6 && Math.floor(tijd * 2) % 2 === 0) {
       tekst("SPATIE = OPNIEUW", W / 2, 570, 14);
     }
-    tekst("ESC = MENU", W / 2, 610, 12, "#ddd");
+    tekst("ESC = PAUZE", W / 2, 610, 12, "#ddd");
   }
 
   function teken() {
@@ -443,7 +441,7 @@
       tekst("SPATIE / KLIK", W / 2, 470, 16);
       tekst("OM TE VLIEGEN", W / 2, 500, 16);
       tekst("RECORD " + record, W / 2, 560, 12, "#ffe14d");
-      tekst("ESC = MENU   M = GELUID", W / 2, 730, 10, "#fff");
+      tekst("ESC = PAUZE   M = GELUID", W / 2, 730, 10, "#fff");
     } else if (toestand === "spelen" || toestand === "dood") {
       tekst(String(score), W / 2, 80, 44);
     } else if (toestand === "einde") {
@@ -462,7 +460,7 @@
   function lus(nu) {
     const dt = Math.max(0, Math.min((nu - vorige) / 1000, 1 / 30)); // geen gekke sprongen na een hapering
     vorige = nu;
-    update(dt);
+    if (!Arcade.gepauzeerd()) update(dt);
     teken();
     requestAnimationFrame(lus);
   }

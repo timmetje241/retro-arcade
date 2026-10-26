@@ -21,8 +21,6 @@ Ga daarna naar http://localhost:8765.
 | Menu | Pijltjes / muis | Spel kiezen |
 | Menu | Enter / klik | Spel starten |
 | Flappy Koe | Spatie / klik / tik | Vliegen |
-| Flappy Koe | M | Geluid aan/uit |
-| Flappy Koe | Esc | Terug naar het menu |
 | Gains Snake | Pijltjes / WASD / vegen | Sturen |
 | Gains Snake | P | Pauze |
 | Protein Catcher | Pijltjes / muis / vinger | Lopen |
@@ -31,7 +29,8 @@ Ga daarna naar http://localhost:8765.
 | Jessy Breakout | Muis / vinger / pijltjes | Peddel bewegen |
 | Jessy Breakout | Spatie / klik | Bal schieten |
 | Whack-a-Jessy | Klik / tik, of QWE ASD ZXC | Meppen |
-| Alle spellen | M / Esc | Geluid aan/uit / terug naar menu |
+| Alle spellen | Esc / pauzeknop (rechtsonder) | Pauzemenu: verder, geluid, muziek, opnieuw, naar menu |
+| Overal | M | Geluid aan/uit |
 
 ## Spellen
 
@@ -42,6 +41,10 @@ Ga daarna naar http://localhost:8765.
 - **Jessy Breakout**: Jessy's hoofd is de bal, de blokjes spellen VIBECODE. Met bonussen!
 - **Whack-a-Jessy**: 30 seconden lang Jessy terug zijn hol in meppen. Niet de koe raken!
 
+## Muziek
+
+Op de achtergrond speelt een 8-bit versie (11 kHz, 8 bits) van de "Polish cow": *Gdzie jest biały węgorz? (Zejście)* van Cypis. De muziek loopt door als je van spel wisselt. Browsers starten geluid pas na de eerste klik of toets.
+
 ## Hoe het in elkaar zit
 
 ```
@@ -51,6 +54,7 @@ js/config.js            titel en de lijst met spellen
 js/arcade.js            gedeelde hulpjes: records, geluid, tekst, schalen, hoofdlus
 js/tekeningen.js        getekende kwark, creatine, bier, pizza, donut en halter
 img/                    de gezichten van Jessy
+muziek/                 de 8-bit titelsong
 js/menu.js              logica van het startscherm
 games/<spel>/           elk spel in een eigen map
 ```

@@ -90,7 +90,6 @@
     toetsen[e.code] = true;
     if (e.code === "Space" || e.code === "Enter" || e.code === "ArrowUp") { e.preventDefault(); if (!e.repeat) actie(); }
     if (e.code === "ArrowLeft" || e.code === "ArrowRight") e.preventDefault();
-    if (e.code === "Escape") Arcade.naarMenu();
     if (e.code === "KeyM") Arcade.zetStil(!Arcade.isStil());
   });
   document.addEventListener("keyup", (e) => { toetsen[e.code] = false; });
@@ -325,7 +324,7 @@
       tekst("+LEVEN", 360, 400, 10, "#fff");
       tekst("MUIS / VINGER / PIJLTJES", W / 2, 470, 11, "#3ef0ff");
       tekst("SPATIE = START", W / 2, 530, 16);
-      tekst("ESC = MENU   M = GELUID", W / 2, 690, 10, "#ddd");
+      tekst("ESC = PAUZE   M = GELUID", W / 2, 690, 10, "#ddd");
     } else if (toestand === "spelen" && bal.vast) {
       tekst("SPATIE / KLIK = SCHIETEN", W / 2, PEDDEL_Y - 60, 10, "#fff");
     } else if (toestand === "einde") {
@@ -337,7 +336,7 @@
       tekst("RECORD " + record, W / 2, 385, 20, "#3ef0ff");
       if (nieuwRecord) tekst("NIEUW RECORD!", W / 2, 430, 14, "#ff3ea5");
       if (tijd - eindeSinds > 0.8 && Math.floor(tijd * 2) % 2 === 0) tekst("SPATIE = OPNIEUW", W / 2, 510, 16);
-      tekst("ESC = MENU", W / 2, 560, 12, "#ddd");
+      tekst("ESC = PAUZE", W / 2, 560, 12, "#ddd");
     }
     c.restore();
   }

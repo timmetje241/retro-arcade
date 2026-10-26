@@ -111,8 +111,6 @@
       if (!e.repeat) startOfOpnieuw();
     } else if (e.code === "KeyP" && (toestand === "spelen" || toestand === "pauze")) {
       toestand = toestand === "spelen" ? "pauze" : "spelen";
-    } else if (e.code === "Escape") {
-      Arcade.naarMenu();
     } else if (e.code === "KeyM") {
       Arcade.zetStil(!Arcade.isStil());
     }
@@ -398,7 +396,7 @@
         ["EN BIER OM TE GROEIEN", 330, 14, "#fff"],
         ["PIJLTJES / WASD / VEGEN", 410, 12, "#3ef0ff"],
         ["SPATIE = START", 470, 16, "#fff"],
-        ["P = PAUZE   M = GELUID   ESC = MENU", 650, 10, "#aaa"]
+        ["ESC = PAUZE   M = GELUID", 650, 10, "#aaa"]
       ]);
     } else if (toestand === "pauze") {
       scherm([["PAUZE", 360, 32, "#ffe14d"], ["SPATIE = VERDER", 430, 14, "#fff"]]);
@@ -408,7 +406,7 @@
         [eindTekst(), 280, 16, "#ffe14d"],
         ["SCORE " + score, 350, 20, "#fff"],
         ["RECORD " + record, 395, 20, "#3ef0ff"],
-        ["ESC = MENU", 560, 12, "#aaa"]
+        ["ESC = PAUZE", 560, 12, "#aaa"]
       ];
       if (nieuwRecord) regels.push(["NIEUW RECORD!", 440, 14, "#ff3ea5"]);
       if (tijd - eindeSinds > 0.6 && Math.floor(tijd * 2) % 2 === 0) regels.push(["SPATIE = OPNIEUW", 510, 16, "#fff"]);
@@ -422,7 +420,7 @@
   function lus(nu) {
     const dt = Math.max(0, Math.min((nu - vorigeTijd) / 1000, 1 / 20));
     vorigeTijd = nu;
-    update(dt);
+    if (!Arcade.gepauzeerd()) update(dt);
     teken();
     requestAnimationFrame(lus);
   }

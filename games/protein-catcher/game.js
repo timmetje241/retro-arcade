@@ -63,7 +63,6 @@
   document.addEventListener("keydown", (e) => {
     toetsen[e.code] = true;
     if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); if (!e.repeat) start(); }
-    if (e.code === "Escape") Arcade.naarMenu();
     if (e.code === "KeyM") Arcade.zetStil(!Arcade.isStil());
     if (e.code.startsWith("Arrow")) e.preventDefault();
   });
@@ -264,7 +263,7 @@
       tekst("NIET VANGEN!", W / 2, 435, 12, "#ff5a5a");
       tekst("PIJLTJES / MUIS / VINGER", W / 2, 500, 11, "#3ef0ff");
       tekst("SPATIE = START", W / 2, 550, 16);
-      tekst("ESC = MENU   M = GELUID", W / 2, 690, 10, "#ddd");
+      tekst("ESC = PAUZE   M = GELUID", W / 2, 690, 10, "#ddd");
     } else if (toestand === "einde") {
       c.fillStyle = "rgba(0, 0, 0, 0.6)";
       c.fillRect(0, 0, W, H);
@@ -274,7 +273,7 @@
       tekst("RECORD " + record, W / 2, 375, 20, "#3ef0ff");
       if (nieuwRecord) tekst("NIEUW RECORD!", W / 2, 420, 14, "#ff3ea5");
       if (tijd - eindeSinds > 0.8 && Math.floor(tijd * 2) % 2 === 0) tekst("SPATIE = OPNIEUW", W / 2, 500, 16);
-      tekst("ESC = MENU", W / 2, 550, 12, "#ddd");
+      tekst("ESC = PAUZE", W / 2, 550, 12, "#ddd");
     }
     c.restore();
   }

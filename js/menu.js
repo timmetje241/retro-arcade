@@ -40,7 +40,20 @@
     setTimeout(() => { window.location.href = spel.pad; }, 150);
   }
 
+  // Muziek en geluid aan/uit (knop of toets M)
+  const geluidKnop = document.getElementById("geluid");
+  function toonGeluid() {
+    geluidKnop.textContent = Arcade.isStil() ? "M = GELUID UIT" : "M = GELUID AAN";
+  }
+  function wisselGeluid() {
+    Arcade.zetStil(!Arcade.isStil());
+    toonGeluid();
+  }
+  geluidKnop.addEventListener("click", wisselGeluid);
+  toonGeluid();
+
   document.addEventListener("keydown", (e) => {
+    if (e.code === "KeyM") { wisselGeluid(); return; }
     const plek = speelbaar.indexOf(gekozen);
     if (e.key === "ArrowRight" || e.key === "ArrowDown") {
       kies(speelbaar[(plek + 1) % speelbaar.length]);

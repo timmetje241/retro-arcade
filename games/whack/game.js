@@ -117,7 +117,6 @@
 
   document.addEventListener("keydown", (e) => {
     if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); if (!e.repeat) start(); return; }
-    if (e.code === "Escape") { Arcade.naarMenu(); return; }
     if (e.code === "KeyM") { Arcade.zetStil(!Arcade.isStil()); return; }
     let gat = TOETS_GAT[e.code];
     if (gat === undefined && /^Digit[1-9]$/.test(e.code)) {
@@ -288,7 +287,7 @@
       tekst(SPEELTIJD + " SECONDEN", W / 2, 445, 12, "#3ef0ff");
       tekst("KLIK/TIK OF QWE ASD ZXC", W / 2, 500, 10, "#3ef0ff");
       tekst("SPATIE / TIK = START", W / 2, 560, 14);
-      tekst("ESC = MENU   M = GELUID", W / 2, 690, 10, "#ddd");
+      tekst("ESC = PAUZE   M = GELUID", W / 2, 690, 10, "#ddd");
     } else if (toestand === "einde") {
       c.fillStyle = "rgba(0, 0, 0, 0.65)";
       c.fillRect(0, 0, W, H);
@@ -298,7 +297,7 @@
       tekst("RECORD " + record, W / 2, 385, 20, "#3ef0ff");
       if (nieuwRecord) tekst("NIEUW RECORD!", W / 2, 430, 14, "#ff3ea5");
       if (tijd - eindeSinds > 1 && Math.floor(tijd * 2) % 2 === 0) tekst("SPATIE / TIK = OPNIEUW", W / 2, 510, 14);
-      tekst("ESC = MENU", W / 2, 560, 12, "#ddd");
+      tekst("ESC = PAUZE", W / 2, 560, 12, "#ddd");
     }
     tekenHamer();
     c.restore();
