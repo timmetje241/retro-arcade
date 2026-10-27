@@ -17,8 +17,16 @@
       <span class="icoon">${spel.icoon}</span>
       <span class="naam">${spel.naam}</span>
       <span class="info">${spel.beschrijving}</span>
-      ${spel.pad ? `<span class="record">RECORD ${record}</span>` : ""}
+      ${spel.pad ? `<span class="record">JOUW RECORD ${record}</span><span class="wereld"></span>` : ""}
     `;
+    // Wereldrecord uit de gedeelde highscores, als die aan staan
+    if (spel.pad && Arcade.highscoresAan()) {
+      Arcade.topScores(spel.id)
+        .then((scores) => {
+          if (scores.length) knop.querySelector(".wereld").textContent = `WERELD: ${scores[0].naam} ${scores[0].score}`;
+        })
+        .catch(() => {});
+    }
     knop.addEventListener("click", () => start(spel));
     knop.addEventListener("mouseenter", () => kies(config.spellen.indexOf(spel)));
     lijst.appendChild(knop);

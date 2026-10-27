@@ -372,6 +372,11 @@ window.Arcade = (function () {
     c.textBaseline = "middle";
     c.lineJoin = "round";
     c.lineWidth = Math.max(3, grootte / 3);
+    if (uitlijning === "center") {
+      // Gecentreerde tekst altijd helemaal in beeld houden
+      const half = c.measureText(woord).width / 2 + 4;
+      x = Math.max(half, Math.min(c.canvas.width - half, x));
+    }
     c.strokeStyle = "#000";
     c.strokeText(woord, x, y);
     c.fillStyle = kleur;

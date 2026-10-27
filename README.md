@@ -22,7 +22,6 @@ Ga daarna naar http://localhost:8765.
 | Menu | Enter / klik | Spel starten |
 | Flappy Koe | Spatie / klik / tik | Vliegen |
 | Gains Snake | Pijltjes / WASD / vegen | Sturen |
-| Gains Snake | P | Pauze |
 | Protein Catcher | Pijltjes / muis / vinger | Lopen |
 | Bier Tapper | Omhoog / omlaag | Bar kiezen |
 | Bier Tapper | Spatie / tik op een bar | Bier tappen |
@@ -37,10 +36,10 @@ Ga daarna naar http://localhost:8765.
 
 - **Flappy Koe**: vlieg een koe tussen de VIBECODE-pijpen door. Haal een bronzen, zilveren, gouden of platina koebel!
 - **Gains Snake**: snake met Jessy als hoofd. Zijn staart groeit met potjes kwark, creatine en biertjes.
-- **Protein Catcher**: vang kwark, creatine en halters, maar laat pizza en donuts vallen.
-- **Bier Tapper**: tap biertjes voor dorstige gasten in Cafe Jessy, zonder glazen te breken.
-- **Jessy Breakout**: Jessy's hoofd is de bal, de blokjes spellen VIBECODE. Met bonussen!
-- **Whack-a-Jessy**: 30 seconden lang Jessy terug zijn hol in meppen. Niet de koe raken!
+- **Protein Catcher**: vang kwark (+1), creatine (+2) en halters (+3). Pizza en donuts kosten een hartje, 5 keer op rij iets goeds missen ook. Een biertje maakt je 5 seconden dronken (besturing omgedraaid) en elke 25 seconden is het CHEAT DAY. Combo's geven x2 en x3.
+- **Bier Tapper**: tap bier voor de gasten in Cafe Jessy. Een biertje duwt een gast terug; daarna schuift hij het lege glas terug, dat je moet vangen. Studenten zijn snel, opa wil 3 bier en mam wil water (geen bier geven!). Soms fooi (+5), en elke 40 seconden HAPPY HOUR (punten x2).
+- **Jessy Breakout**: Jessy's hoofd is de bal. Vijf levels (VIBECODE, PROOST, HAPPY 33, BOE BOE! en een eindbaas: een gigantisch Jessy-hoofd dat pizza's gooit). Creatineblokken moet je 2x raken, halters 3x, koeblokken zijn onbreekbaar. Pizza maakt je peddel klein. Daarna begint ronde 2, sneller.
+- **Whack-a-Jessy**: 30 seconden meppen. Jessy +1, zonnebril-Jessy 2x meppen (+2), gouden Jessy +5, biertje +3 seconden, de koe -3 en mis-meppen -1. Combo's geven x2 en x3, de laatste 10 seconden is het FRENZY.
 
 ## Muziek
 

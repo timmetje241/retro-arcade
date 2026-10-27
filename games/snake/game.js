@@ -36,7 +36,7 @@
   pasAan();
 
   // --- Toestand ---
-  let toestand;        // "klaar", "spelen", "pauze" of "einde"
+  let toestand;        // "klaar", "spelen" of "einde"
   let posities;        // [{x, y}], index 0 is het hoofd
   let vorige;          // posities van de vorige stap, voor vloeiend bewegen
   let soorten;         // wat elk stukje staart is
@@ -92,7 +92,6 @@
 
   function startOfOpnieuw() {
     if (toestand === "klaar") toestand = "spelen";
-    else if (toestand === "pauze") toestand = "spelen";
     else if (toestand === "einde" && tijd - eindeSinds > 0.6) nieuwSpel();
   }
 
@@ -110,8 +109,6 @@
     } else if (e.code === "Space" || e.code === "Enter") {
       e.preventDefault();
       if (!e.repeat) startOfOpnieuw();
-    } else if (e.code === "KeyP" && (toestand === "spelen" || toestand === "pauze")) {
-      toestand = toestand === "spelen" ? "pauze" : "spelen";
     } else if (e.code === "KeyM") {
       Arcade.zetStil(!Arcade.isStil());
     }
@@ -401,8 +398,6 @@
         ["SPATIE = START", 470, 16, "#fff"],
         ["ESC = PAUZE   M = GELUID", 650, 10, "#aaa"]
       ]);
-    } else if (toestand === "pauze") {
-      scherm([["PAUZE", 360, 32, "#ffe14d"], ["SPATIE = VERDER", 430, 14, "#fff"]]);
     } else if (toestand === "einde") {
       const regels = [
         ["GAME OVER", 220, 36, "#ff5a5a"],

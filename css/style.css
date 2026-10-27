@@ -111,6 +111,7 @@ h1 {
 .spel .naam { font-size: 16px; color: var(--kleur); }
 .spel .info { font-size: 9px; color: var(--gedimd); line-height: 1.6; }
 .spel .record { font-size: 9px; color: var(--geel); }
+.spel .wereld { font-size: 9px; color: var(--neon-blauw); min-height: 9px; }
 
 .spel.gekozen,
 .spel:hover:not(:disabled) {
