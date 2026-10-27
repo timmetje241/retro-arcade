@@ -41,6 +41,14 @@ Ga daarna naar http://localhost:8765.
 - **Jessy Breakout**: Jessy's hoofd is de bal. Vijf levels (VIBECODE, PROOST, HAPPY 33, BOE BOE! en een eindbaas: een gigantisch Jessy-hoofd dat pizza's gooit). Creatineblokken moet je 2x raken, halters 3x, koeblokken zijn onbreekbaar. Pizza maakt je peddel klein. Daarna begint ronde 2, sneller.
 - **Whack-a-Jessy**: 30 seconden meppen. Jessy +1, zonnebril-Jessy 2x meppen (+2), gouden Jessy +5, biertje +3 seconden, de koe -3 en mis-meppen -1. Combo's geven x2 en x3, de laatste 10 seconden is het FRENZY.
 
+## Verrassingen
+
+- Kom je in een spel voorbij de **33 punten**, dan krijg je confetti, een "boe" en "HAPPY 33RD JESSY!".
+- Alle gezichten van Jessy dragen een **feesthoedje**.
+- Op **31 oktober** (Jessy's verjaardag) regent het confetti op het startscherm.
+- De **lichtkrant** op het startscherm telt af naar de verjaardag en toont de nieuwste scores en wereldrecords.
+- Bij elke game over staat er een **plaagtekst** (de lijst staat in `js/arcade.js`, zoek op `PLAAG_`).
+
 ## Muziek
 
 Op de achtergrond speelt een 8-bit versie van de "Polish cow" (`muziek/polish-cow-8bit.mp3`): *Gdzie jest biały węgorz? (Zejście)* van Cypis. De muziek loopt door als je van spel wisselt. Browsers starten geluid pas na de eerste klik of toets.
