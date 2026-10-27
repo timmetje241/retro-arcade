@@ -432,7 +432,7 @@
     c.fillStyle = "#ff3e5a";
     c.fillRect(40, 72, breed * (baas.levens / baas.max), 10);
     tekst("EINDBAAS JESSY", W / 2, 77, 8, "#fff");
-    // Het hoofd zelf, met feesthoedje
+    // Het hoofd zelf (het feesthoedje tekent Arcade.plaatje erbij)
     c.save();
     c.translate(baas.x, baas.y);
     c.rotate(Math.sin(tijd * 2) * 0.1);
@@ -441,16 +441,6 @@
     c.arc(0, 0, BAAS_R + 5, 0, Math.PI * 2);
     c.fill();
     Arcade.plaatje(c, gezichten[2], 0, 0, BAAS_R);
-    c.fillStyle = "#ffe14d";
-    c.beginPath();
-    c.moveTo(-22, -BAAS_R + 6);
-    c.lineTo(22, -BAAS_R + 6);
-    c.lineTo(0, -BAAS_R - 44);
-    c.fill();
-    c.fillStyle = "#ff3ea5";
-    c.beginPath();
-    c.arc(0, -BAAS_R - 46, 7, 0, Math.PI * 2);
-    c.fill();
     c.restore();
   }
 
@@ -526,6 +516,7 @@
       c.fillStyle = "rgba(0, 0, 0, 0.65)";
       c.fillRect(0, 0, W, H);
       tekst("GAME OVER", W / 2, 220, 34, "#ff5a5a");
+      tekst(Arcade.plaagTekst(), W / 2, 305, 10, "#fff");
       tekst((ronde > 1 ? "RONDE " + ronde + ", " : "") + "LEVEL " + (level + 1) + ": " + LEVELS[level].naam, W / 2, 280, 12, "#ffe14d");
       tekst("SCORE " + score, W / 2, 340, 20);
       tekst("RECORD " + record, W / 2, 385, 20, "#3ef0ff");
@@ -536,6 +527,7 @@
     c.restore();
   }
 
+  Arcade.volgScore(() => score);
   nieuwSpel();
   Arcade.lus(update, teken);
 })();

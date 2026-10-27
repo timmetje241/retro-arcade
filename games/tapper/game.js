@@ -447,6 +447,7 @@
       c.fillStyle = "rgba(0, 0, 0, 0.65)";
       c.fillRect(0, 0, W, H);
       tekst("SLUITINGSTIJD!", W / 2, 210, 26, "#ff5a5a");
+      tekst(Arcade.plaagTekst(), W / 2, 318, 10, "#fff");
       tekst("CAFE JESSY GAAT DICHT", W / 2, 290, 12, "#ffe14d");
       tekst("SCORE " + score, W / 2, 350, 20);
       tekst("RECORD " + record, W / 2, 395, 20, "#3ef0ff");
@@ -457,6 +458,7 @@
     c.restore();
   }
 
+  Arcade.volgScore(() => score);
   nieuwSpel();
   Arcade.lus(update, teken);
 })();

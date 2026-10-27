@@ -423,6 +423,7 @@
       c.fillStyle = "rgba(0, 0, 0, 0.65)";
       c.fillRect(0, 0, W, H);
       tekst("TIJD OP!", W / 2, 200, 34, "#ff5a5a");
+      tekst(Arcade.plaagTekst(), W / 2, 300, 10, "#fff");
       tekst("JESSY " + gemept + "X GEMEPT", W / 2, 270, 14, "#ffe14d");
       tekst("SCORE " + score, W / 2, 340, 20);
       tekst("RECORD " + record, W / 2, 385, 20, "#3ef0ff");
@@ -434,6 +435,7 @@
     c.restore();
   }
 
+  Arcade.volgScore(() => score);
   nieuwSpel();
   Arcade.lus(update, teken);
 })();

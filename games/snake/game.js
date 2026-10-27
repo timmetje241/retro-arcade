@@ -353,9 +353,7 @@
     c.beginPath();
     c.arc(0, 0, r + 3, 0, Math.PI * 2);
     c.fill();
-    if (hoofd.complete && hoofd.naturalWidth) {
-      c.drawImage(hoofd, -r, -r, r * 2, r * 2);
-    }
+    Arcade.plaatje(c, hoofd, 0, 0, r);
     c.restore();
   }
 
@@ -402,6 +400,7 @@
       const regels = [
         ["GAME OVER", 220, 36, "#ff5a5a"],
         [eindTekst(), 280, 16, "#ffe14d"],
+        [Arcade.plaagTekst(), 312, 11, "#fff"],
         ["SCORE " + score, 350, 20, "#fff"],
         ["RECORD " + record, 395, 20, "#3ef0ff"],
         ["ESC = PAUZE", 560, 12, "#aaa"]
@@ -423,6 +422,7 @@
     requestAnimationFrame(lus);
   }
 
+  Arcade.volgScore(() => score);
   nieuwSpel();
   requestAnimationFrame(lus);
 })();

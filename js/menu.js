@@ -48,6 +48,47 @@
     setTimeout(() => { window.location.href = spel.pad; }, 150);
   }
 
+  // --- Lichtkrant: verjaardag, wereldrecords en de nieuwste scores ---
+  const lichtkrant = document.getElementById("lichtkrant");
+  const naamVan = (id) => (config.spellen.find((s) => s.id === id) || { naam: id }).naam;
+
+  function dagenTotVerjaardag() {
+    const nu = new Date();
+    let jarig = new Date(nu.getFullYear(), 9, 31);
+    if (jarig < new Date(nu.getFullYear(), nu.getMonth(), nu.getDate())) jarig = new Date(nu.getFullYear() + 1, 9, 31);
+    return Math.round((jarig - new Date(nu.getFullYear(), nu.getMonth(), nu.getDate())) / 86400000);
+  }
+
+  function toonLichtkrant(berichten) {
+    lichtkrant.textContent = berichten.join("   ★   ");
+    // Lange tekst mag langer duren, zodat hij overal even snel loopt
+    lichtkrant.style.setProperty("--duur", Math.max(15, lichtkrant.textContent.length * 0.22) + "s");
+  }
+
+  const berichten = [];
+  if (Arcade.isVerjaardag()) {
+    berichten.push("VANDAAG JARIG: HIEP HIEP HOERA VOOR JESSY!");
+    Arcade.confetti(120, true);
+  } else {
+    const dagen = dagenTotVerjaardag();
+    berichten.push(dagen === 1 ? "MORGEN IS JESSY JARIG!" : `NOG ${dagen} DAGEN TOT JESSY'S VERJAARDAG`);
+  }
+  berichten.push("HAAL 33 PUNTEN VOOR EEN VERRASSING");
+  berichten.push("BOE ZEGT DE KOE");
+  toonLichtkrant(berichten);
+
+  if (Arcade.highscoresAan()) {
+    Promise.all([
+      Arcade.laatsteScores(8).catch(() => []),
+      ...config.spellen.filter((s) => s.pad).map((s) => Arcade.topScores(s.id).then((l) => [s.id, l[0]]).catch(() => [s.id, null]))
+    ]).then(([laatste, ...records]) => {
+      const extra = [];
+      laatste.forEach((s) => extra.push(`${s.naam} SCOORDE ${s.score} BIJ ${naamVan(s.spel)}`));
+      records.forEach(([id, top]) => { if (top) extra.push(`WERELDRECORD ${naamVan(id)}: ${top.naam} MET ${top.score}`); });
+      if (extra.length) toonLichtkrant([...berichten.slice(0, 1), ...extra, ...berichten.slice(1)]);
+    });
+  }
+
   // Muziek en geluid aan/uit (knop of toets M)
   const geluidKnop = document.getElementById("geluid");
   function toonGeluid() {

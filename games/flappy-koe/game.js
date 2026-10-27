@@ -397,6 +397,7 @@
     c.fillStyle = "rgba(0, 0, 0, 0.35)";
     c.fillRect(0, 0, W, H);
     tekst("GAME OVER", W / 2, 200, 34, "#ff5a5a");
+    tekst(Arcade.plaagTekst(), W / 2, 238, 10, "#fff");
 
     const px = 56, py = 260, pb = W - 112, ph = 250;
     c.fillStyle = "#000";
@@ -466,6 +467,7 @@
     requestAnimationFrame(lus);
   }
 
+  Arcade.volgScore(() => score);
   nieuwSpel();
   requestAnimationFrame(lus);
 })();

@@ -387,6 +387,7 @@
       c.fillStyle = "rgba(0, 0, 0, 0.6)";
       c.fillRect(0, 0, W, H);
       tekst("GAME OVER", W / 2, 200, 34, "#ff5a5a");
+      tekst(Arcade.plaagTekst(), W / 2, 285, 10, "#fff");
       tekst(doodsoorzaak === "lui" ? "TE LUI OM TE VANGEN" : "TE VEEL CHEAT MEALS", W / 2, 255, 12, "#ffe14d");
       tekst("SCORE " + score, W / 2, 330, 20);
       tekst("RECORD " + record, W / 2, 375, 20, "#3ef0ff");
@@ -396,6 +397,7 @@
     }
   }
 
+  Arcade.volgScore(() => score);
   nieuwSpel();
   Arcade.lus(update, teken);
 })();

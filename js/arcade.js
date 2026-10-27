@@ -277,6 +277,12 @@ window.Arcade = (function () {
     return antwoord.status === 204 || antwoord.status === 201 ? null : antwoord.json();
   }
 
+  // De laatst ingestuurde scores van alle spellen, nieuwste eerst (voor de lichtkrant)
+  function laatsteScores(aantal = 10) {
+    if (!highscoreInstelling()) return Promise.resolve([]);
+    return highscoreVerzoek(`scores?select=naam,score,spel,gemaakt&order=gemaakt.desc&limit=${aantal}`);
+  }
+
   // De beste scores van één spel, hoogste eerst
   function topScores(spel) {
     if (!highscoreInstelling()) return Promise.resolve([]);
@@ -313,6 +319,7 @@ window.Arcade = (function () {
   }
 
   async function vraagNaam(spel, score) {
+    kiesPlaag(spel); // elke game over een nieuwe plaagtekst
     if (!highscoreInstelling() || score <= 0) return;
     let lijst;
     try {
@@ -398,9 +405,163 @@ window.Arcade = (function () {
     return keuze[Math.floor(Math.random() * keuze.length)];
   }
 
-  // Tekent een rond plaatje als het geladen is
+  // Tekent een rond plaatje als het geladen is. Gezichten van Jessy krijgen een feesthoedje.
   function plaatje(c, img, x, y, straal) {
-    if (img.complete && img.naturalWidth) c.drawImage(img, x - straal, y - straal, straal * 2, straal * 2);
+    if (!img.complete || !img.naturalWidth) return;
+    c.drawImage(img, x - straal, y - straal, straal * 2, straal * 2);
+    if (straal >= 14 && img.src.includes("/img/jessy-")) feesthoedje(c, x, y, straal);
+  }
+
+  function feesthoedje(c, x, y, straal) {
+    const h = straal * 0.95;
+    const b = straal * 0.75;
+    c.save();
+    c.translate(x + straal * 0.25, y - straal * 0.82);
+    c.rotate(0.3);
+    c.fillStyle = "#1a1a1a";
+    c.beginPath();
+    c.moveTo(-b / 2 - 2, 2);
+    c.lineTo(b / 2 + 2, 2);
+    c.lineTo(0, -h - 3);
+    c.fill();
+    c.fillStyle = "#ff3ea5";
+    c.beginPath();
+    c.moveTo(-b / 2, 0);
+    c.lineTo(b / 2, 0);
+    c.lineTo(0, -h);
+    c.fill();
+    // Gele streepjes en een pompon
+    c.fillStyle = "#ffe14d";
+    c.fillRect(-b * 0.32, -h * 0.3, b * 0.64, Math.max(2, straal * 0.08));
+    c.fillRect(-b * 0.18, -h * 0.6, b * 0.36, Math.max(2, straal * 0.08));
+    c.fillStyle = "#3ef0ff";
+    c.beginPath();
+    c.arc(0, -h, Math.max(3, straal * 0.13), 0, Math.PI * 2);
+    c.fill();
+    c.restore();
+  }
+
+  // --- Plaagteksten bij game over ---
+  const PLAAG_ALGEMEEN = [
+    "33 EN NU AL KRAKEND?",
+    "DAT WAS DE CREATINE NIET",
+    "MEER KWARK NODIG",
+    "TIJD VOOR EEN DUTJE",
+    "VIBECODEN GAAT BETER",
+    "BOE ZEGT DE KOE",
+    "VOLGEND JAAR BETER",
+    "NOG EEN RONDJE?"
+  ];
+  const PLAAG_PER_SPEL = {
+    "flappy-koe": ["ZELFS BEERTJE (4) VLIEGT VERDER", "DE KOE IS TELEURGESTELD"],
+    snake: ["ZELFS BEERTJE (4) WORDT LANGER", "TE VEEL BIER, TE WEINIG KWARK"],
+    "protein-catcher": ["ZELFS BEERTJE (4) VANGT BETER", "SKIP LEG DAY NIET"],
+    tapper: ["ZELFS BEERTJE (4) TAPT SNELLER", "MAM IS NIET ONDER DE INDRUK"],
+    breakout: ["ZELFS BEERTJE (4) MIKT BETER", "DE KOE WON"],
+    whack: ["ZELFS BEERTJE (4) MEPT HARDER", "JESSY LACHT JE UIT"]
+  };
+  let plaag = "";
+
+  function kiesPlaag(spel) {
+    const lijst = [...PLAAG_ALGEMEEN, ...(PLAAG_PER_SPEL[spel] || []), ...(PLAAG_PER_SPEL[spel] || [])];
+    plaag = lijst[Math.floor(Math.random() * lijst.length)];
+  }
+
+  // --- Feest: confetti, een "boe" en een spandoek ---
+  let confettiCanvas = null;
+  let deeltjes = [];
+  let blijvendeConfetti = false;
+  let confettiLoopt = false;
+  const CONFETTI_KLEUREN = ["#ff3ea5", "#3ef0ff", "#ffe14d", "#5fd35f", "#ff8a3d", "#b06cff", "#fff"];
+
+  function nieuwDeeltje(bovenaan) {
+    return {
+      x: Math.random() * window.innerWidth,
+      y: bovenaan ? -20 : Math.random() * window.innerHeight * 0.5,
+      vx: (Math.random() - 0.5) * 120,
+      vy: 80 + Math.random() * 160,
+      draai: Math.random() * 6,
+      draaiV: (Math.random() - 0.5) * 10,
+      kleur: CONFETTI_KLEUREN[Math.floor(Math.random() * CONFETTI_KLEUREN.length)],
+      b: 6 + Math.random() * 6
+    };
+  }
+
+  function confetti(aantal = 160, blijvend = false) {
+    if (!document.body) return;
+    blijvendeConfetti = blijvendeConfetti || blijvend;
+    if (!confettiCanvas) {
+      confettiCanvas = document.createElement("canvas");
+      confettiCanvas.style.cssText = "position: fixed; inset: 0; pointer-events: none; z-index: 25;";
+      document.body.appendChild(confettiCanvas);
+    }
+    for (let i = 0; i < aantal; i++) deeltjes.push(nieuwDeeltje(false));
+    if (confettiLoopt) return;
+    confettiLoopt = true;
+    let vorige = performance.now();
+    const stap = (nu) => {
+      const dt = Math.min((nu - vorige) / 1000, 0.05);
+      vorige = nu;
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+      const c = confettiCanvas.getContext("2d");
+      if (blijvendeConfetti && deeltjes.length < 90) deeltjes.push(nieuwDeeltje(true));
+      deeltjes.forEach((d) => {
+        d.x += d.vx * dt;
+        d.y += d.vy * dt;
+        d.draai += d.draaiV * dt;
+        c.save();
+        c.translate(d.x, d.y);
+        c.rotate(d.draai);
+        c.fillStyle = d.kleur;
+        c.fillRect(-d.b / 2, -d.b / 4, d.b, d.b / 2);
+        c.restore();
+      });
+      deeltjes = deeltjes.filter((d) => d.y < window.innerHeight + 20);
+      if (deeltjes.length || blijvendeConfetti) requestAnimationFrame(stap);
+      else confettiLoopt = false;
+    };
+    requestAnimationFrame(stap);
+  }
+
+  function spandoek(woord, duur = 3000) {
+    if (!document.body) return;
+    const doek = document.createElement("div");
+    doek.textContent = woord;
+    doek.style.cssText = `position: fixed; left: 50%; top: 28%; transform: translate(-50%, -50%) rotate(-4deg); z-index: 26;
+      font: clamp(16px, 4vw, 30px) ${FONT}; color: #ffe14d; background: #ff3ea5; border: 4px solid #000;
+      box-shadow: 6px 6px 0 #000; padding: 16px 20px; text-align: center; pointer-events: none; max-width: 90vw;
+      text-shadow: 3px 3px 0 #000; transition: opacity 0.5s;`;
+    document.body.appendChild(doek);
+    setTimeout(() => { doek.style.opacity = "0"; }, duur);
+    setTimeout(() => doek.remove(), duur + 600);
+  }
+
+  function boe() {
+    toon({ type: "sawtooth", van: 180, naar: 120, duur: 0.25, volume: 0.25, filter: 900 });
+    toon({ type: "sawtooth", van: 120, naar: 85, duur: 0.7, volume: 0.25, filter: 700, vertraging: 0.2 });
+  }
+
+  function feest(woord) {
+    confetti(200);
+    spandoek(woord);
+    boe();
+  }
+
+  // Easter egg: wie in een spel voorbij de 33 punten komt, krijgt een verjaardagsfeestje
+  function volgScore(geefScore) {
+    let vorige = 0;
+    setInterval(() => {
+      const nu = geefScore();
+      if (vorige < 33 && nu >= 33) feest("HAPPY 33RD JESSY!");
+      vorige = nu;
+    }, 150);
+  }
+
+  // Is het vandaag Jessy's verjaardag (31 oktober)?
+  function isVerjaardag() {
+    const d = new Date();
+    return d.getMonth() === 9 && d.getDate() === 31;
   }
 
   // Hoofdlus: roept elke frame update(dt) en teken() aan
@@ -431,7 +592,14 @@ window.Arcade = (function () {
     gepauzeerd: () => gepauzeerd,
     highscoresAan: () => !!highscoreInstelling(),
     topScores,
+    laatsteScores,
     vraagNaam,
+    plaagTekst: () => plaag,
+    confetti,
+    spandoek,
+    feest,
+    volgScore,
+    isVerjaardag,
     naarMenu,
     FONT,
     schaalCanvas,
