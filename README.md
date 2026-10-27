@@ -86,6 +86,10 @@ games/<spel>/           elk spel in een eigen map
 
 Er zijn geen frameworks of build-stappen nodig: het is gewone HTML, CSS en JavaScript.
 
+## Na een wijziging
+
+Draai na elke wijziging `python tools/nieuwe-versie.py`. Dat zet een nieuw versienummer achter de scripts, zodat bezoekers meteen de nieuwe versie krijgen in plaats van een oude uit hun browsergeheugen.
+
 ## Een nieuw spel toevoegen
 
 1. Maak een map `games/mijn-spel/` met daarin een `index.html`.

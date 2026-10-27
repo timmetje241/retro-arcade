@@ -72,11 +72,28 @@
   }
   const KOE_FRAMES = [maakKoe(0), maakKoe(1), maakKoe(2), maakKoe(1)];
 
-  // 1 op de 3 potjes vliegt er geen koe maar Jessy zelf, met een willekeurig gezicht
-  const JESSY_KANS = 1 / 3;
+  // 1 op de 3 potjes vliegt er geen koe maar Jessy zelf, met een willekeurig gezicht.
+  // Eerlijk verdeeld met een "zak" van 3 potjes waarin precies één Jessy zit, zodat je
+  // nooit lang hoeft te wachten. De zak wordt onthouden, ook als je de pagina herlaadt.
+  const ZAK_GROOTTE = 3;
+  const ZAK_SLEUTEL = "flappy-koe.zak";
   const gezichten = Arcade.gezichten();
   let jessy = null;
   let vorigeJessy = null;
+
+  function wordtHetJessy() {
+    let zak = Arcade.lees(ZAK_SLEUTEL, []);
+    if (!Array.isArray(zak) || !zak.length) {
+      zak = Array.from({ length: ZAK_GROOTTE }, (_, i) => i === 0);
+      for (let i = zak.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [zak[i], zak[j]] = [zak[j], zak[i]];
+      }
+    }
+    const uitkomst = zak.shift();
+    Arcade.bewaar(ZAK_SLEUTEL, zak);
+    return uitkomst;
+  }
 
   // --- Toestand van het spel ---
   let toestand;          // "klaar", "spelen", "dood" of "einde"
@@ -100,7 +117,7 @@
   function nieuwSpel() {
     toestand = "klaar";
     koe = { x: 110, y: H / 2 - 40, vy: 0, hoek: 0, frame: 0 };
-    jessy = Math.random() < JESSY_KANS ? Arcade.anderGezicht(gezichten, vorigeJessy) : null;
+    jessy = wordtHetJessy() ? Arcade.anderGezicht(gezichten, vorigeJessy) : null;
     if (jessy) vorigeJessy = jessy;
     pijpen = [];
     score = 0;
