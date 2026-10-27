@@ -23,9 +23,9 @@
     bier: ["PROOST!", "BIERTJE!", "SANTÉ!"]
   };
 
-  // Bij elke hap krijgt de slang een ander gezicht van Jessy
+  // Elk potje krijgt de slang een willekeurig gezicht van Jessy
   const gezichten = Arcade.gezichten();
-  let hoofd = gezichten[0];
+  let hoofd = null;
 
   function pasAan() {
     const schaal = Math.min(window.innerWidth / W, window.innerHeight / H);
@@ -53,6 +53,7 @@
   let schud = 0;
 
   function nieuwSpel() {
+    hoofd = Arcade.anderGezicht(gezichten, hoofd);
     toestand = "klaar";
     posities = [{ x: 6, y: 10 }, { x: 5, y: 10 }, { x: 4, y: 10 }];
     vorige = posities.map((p) => ({ ...p }));
@@ -165,7 +166,6 @@
 
     if (eet) {
       soorten.push(eten.soort);
-      hoofd = Arcade.anderGezicht(gezichten, hoofd);
       score++;
       hapGeluid(eten.soort);
       const opties = KREETJES[eten.soort];

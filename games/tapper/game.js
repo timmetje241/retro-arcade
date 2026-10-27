@@ -7,9 +7,9 @@
   const RECORD_SLEUTEL = "tapper.record";
   const tekst = (...a) => Arcade.tekst(c, ...a);
   Arcade.schaalCanvas(canvas);
-  // Bij elk getapt biertje staat er een ander gezicht van Jessy achter de bar
+  // Elk potje een willekeurig gezicht van Jessy
   const gezichten = Arcade.gezichten();
-  let gezicht = gezichten[1];
+  let gezicht = null;
 
   // --- De bar ---
   const BARS = [230, 350, 470, 590];   // bovenkant van elke bar
@@ -45,6 +45,7 @@
   let record = Arcade.lees(RECORD_SLEUTEL, 0);
 
   function nieuwSpel() {
+    gezicht = Arcade.anderGezicht(gezichten, gezicht);
     toestand = "klaar";
     bar = 0;
     gasten = [];
@@ -116,17 +117,10 @@
     else if (e.code === "KeyM") Arcade.zetStil(!Arcade.isStil());
   });
 
-  // Tikken op een bar: daarheen lopen en meteen tappen
+  // Spelen kan alleen met het toetsenbord; klikken of tikken start alleen het spel
   canvas.addEventListener("pointerdown", (e) => {
     e.preventDefault();
-    if (start()) return;
-    const r = canvas.getBoundingClientRect();
-    const y = (e.clientY - r.top) * (H / r.height);
-    let dichtst = 0;
-    BARS.forEach((b, i) => { if (Math.abs(y - (b - 20)) < Math.abs(y - (BARS[dichtst] - 20))) dichtst = i; });
-    bar = dichtst;
-    tapPauze = 0;
-    tap();
+    start();
   });
 
   // --- Spel bijwerken ---
@@ -186,7 +180,6 @@
     g.dorst--;
     const p = punten(1);
     score += p;
-    gezicht = Arcade.anderGezicht(gezichten, gezicht);
     kreet(willekeurig(KRETEN) + (p > 1 ? " +" + p : ""), g.x, BARS[g.bar] - 80);
     Arcade.toon({ type: "square", van: 784, duur: 0.08, volume: 0.1 });
     Arcade.toon({ type: "square", van: 1047, duur: 0.15, volume: 0.1, vertraging: 0.08 });
@@ -440,7 +433,7 @@
       tekst("FOOI = +5   HAPPY HOUR = X2", W / 2, 385, 10, "#5fd35f");
       tekst("OMHOOG/OMLAAG = BAR KIEZEN", W / 2, 445, 10, "#3ef0ff");
       tekst("SPATIE = TAPPEN", W / 2, 470, 10, "#3ef0ff");
-      tekst("OF TIK OP EEN BAR", W / 2, 495, 10, "#3ef0ff");
+      tekst("(ALLEEN MET TOETSENBORD)", W / 2, 495, 10, "#3ef0ff");
       tekst("SPATIE = START", W / 2, 560, 16);
       tekst("ESC = PAUZE   M = GELUID", W / 2, 690, 10, "#ddd");
     } else if (toestand === "einde") {

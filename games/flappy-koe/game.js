@@ -72,6 +72,12 @@
   }
   const KOE_FRAMES = [maakKoe(0), maakKoe(1), maakKoe(2), maakKoe(1)];
 
+  // 1 op de 3 potjes vliegt er geen koe maar Jessy zelf, met een willekeurig gezicht
+  const JESSY_KANS = 1 / 3;
+  const gezichten = Arcade.gezichten();
+  let jessy = null;
+  let vorigeJessy = null;
+
   // --- Toestand van het spel ---
   let toestand;          // "klaar", "spelen", "dood" of "einde"
   let koe;
@@ -94,6 +100,8 @@
   function nieuwSpel() {
     toestand = "klaar";
     koe = { x: 110, y: H / 2 - 40, vy: 0, hoek: 0, frame: 0 };
+    jessy = Math.random() < JESSY_KANS ? Arcade.anderGezicht(gezichten, vorigeJessy) : null;
+    if (jessy) vorigeJessy = jessy;
     pijpen = [];
     score = 0;
     nieuwRecord = false;
@@ -375,7 +383,45 @@
     }
   }
 
+  // Vliegende Jessy: zijn hoofd met twee klapperende vleugeltjes
+  function tekenJessy() {
+    const vleugel = [-0.7, -0.1, 0.5, -0.1][koe.frame]; // omhoog, midden, omlaag, midden
+    c.save();
+    c.translate(koe.x, koe.y);
+    c.rotate(koe.hoek);
+    [-1, 1].forEach((kant) => {
+      c.save();
+      c.translate(kant * 22, -2);
+      c.rotate(kant * vleugel);
+      c.fillStyle = "#1a1a1a";
+      c.beginPath();
+      c.ellipse(kant * 16, 0, 21, 11, 0, 0, Math.PI * 2);
+      c.fill();
+      c.fillStyle = "#fff";
+      c.beginPath();
+      c.ellipse(kant * 16, 0, 18, 8, 0, 0, Math.PI * 2);
+      c.fill();
+      c.fillStyle = "#d9d9e6";
+      c.fillRect(kant * 16 - 10, 1, 20, 3);
+      c.restore();
+    });
+    c.fillStyle = "#1a1a1a";
+    c.beginPath();
+    c.arc(0, 0, 27, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = "#ff3ea5";
+    c.beginPath();
+    c.arc(0, 0, 25, 0, Math.PI * 2);
+    c.fill();
+    Arcade.plaatje(c, jessy, 0, 0, 23);
+    c.restore();
+  }
+
   function tekenKoe() {
+    if (jessy) {
+      tekenJessy();
+      return;
+    }
     const sprite = KOE_FRAMES[koe.frame];
     c.save();
     c.translate(koe.x, koe.y);
@@ -439,7 +485,8 @@
     tekenKoe();
 
     if (toestand === "klaar") {
-      tekst("FLAPPY KOE", W / 2, 150, 32, "#ffe14d");
+      tekst(jessy ? "FLAPPY JESSY" : "FLAPPY KOE", W / 2, 150, jessy ? 28 : 32, "#ffe14d");
+      if (jessy) tekst("DE KOE HEEFT VRIJ VANDAAG", W / 2, 190, 10, "#fff");
       tekst("SPATIE / KLIK", W / 2, 470, 16);
       tekst("OM TE VLIEGEN", W / 2, 500, 16);
       tekst("RECORD " + record, W / 2, 560, 12, "#ffe14d");

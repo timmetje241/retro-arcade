@@ -8,9 +8,9 @@
   const RECORD_SLEUTEL = "protein-catcher.record";
   const tekst = (...a) => Arcade.tekst(c, ...a);
   Arcade.schaalCanvas(canvas);
-  // Bij elke vangst een ander gezicht van Jessy
+  // Elk potje een willekeurig gezicht van Jessy
   const gezichten = Arcade.gezichten();
-  let gezicht = gezichten[3];
+  let gezicht = null;
 
   // --- Spelregels ---
   const LOOPSNELHEID = 430;
@@ -41,6 +41,7 @@
   let wijzerX = null;
 
   function nieuwSpel() {
+    gezicht = Arcade.anderGezicht(gezichten, gezicht);
     toestand = "klaar";
     speler = { x: W / 2, richting: 1, stap: 0 };
     vallers = [];
@@ -224,7 +225,6 @@
       const punten = s.punten * vermenigvuldiger();
       score += punten;
       kreet(woord + (punten > 1 ? " +" + punten : ""), v.x, VANG_Y - 30, "#ffe14d");
-      gezicht = Arcade.anderGezicht(gezichten, gezicht);
       Arcade.toon({ type: "square", van: 600 + s.punten * 150, naar: 1200 + s.punten * 200, duur: 0.1, volume: 0.1 });
       if (combo % COMBO_STAP === 0 && combo <= (MAX_VERMENIGVULDIGER - 1) * COMBO_STAP) {
         kreet("COMBO X" + vermenigvuldiger() + "!", W / 2, 170, "#ff3ea5", true);

@@ -7,9 +7,9 @@
   const RECORD_SLEUTEL = "breakout.record";
   const tekst = (...a) => Arcade.tekst(c, ...a);
   Arcade.schaalCanvas(canvas);
-  // De bal krijgt bij elke tik tegen de peddel een ander gezicht van Jessy
+  // Elk potje een willekeurig gezicht van Jessy
   const gezichten = Arcade.gezichten();
-  let gezicht = gezichten[0];
+  let gezicht = null;
 
   // --- Levels ---
   // n = gewoon blok, s = creatinepot (2x raken), x = halter (3x raken), k = koe (onbreekbaar), . = leeg
@@ -51,6 +51,7 @@
   const toetsen = {};
 
   function nieuwSpel() {
+    gezicht = Arcade.anderGezicht(gezichten, gezicht);
     toestand = "klaar";
     score = 0;
     levens = LEVENS;
@@ -336,7 +337,6 @@
         bal.vx = Math.cos(hoek) * balSnelheid();
         bal.vy = Math.sin(hoek) * balSnelheid();
         bal.y = PEDDEL_Y - BAL_R;
-        gezicht = Arcade.anderGezicht(gezichten, gezicht);
         Arcade.toon({ type: "square", van: 220, duur: 0.06, volume: 0.1 });
       }
 
@@ -440,7 +440,7 @@
     c.beginPath();
     c.arc(0, 0, BAAS_R + 5, 0, Math.PI * 2);
     c.fill();
-    Arcade.plaatje(c, gezichten[2], 0, 0, BAAS_R);
+    Arcade.plaatje(c, gezicht, 0, 0, BAAS_R);
     c.restore();
   }
 

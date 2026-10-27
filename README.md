@@ -24,7 +24,7 @@ Ga daarna naar http://localhost:8765.
 | Gains Snake | Pijltjes / WASD / vegen | Sturen |
 | Protein Catcher | Pijltjes / muis / vinger | Lopen |
 | Bier Tapper | Omhoog / omlaag | Bar kiezen |
-| Bier Tapper | Spatie / tik op een bar | Bier tappen |
+| Bier Tapper | Spatie (alleen toetsenbord) | Bier tappen |
 | Jessy Breakout | Muis / vinger / pijltjes | Peddel bewegen |
 | Jessy Breakout | Spatie / klik | Bal schieten |
 | Whack-a-Jessy | Klik / tik, of QWE ASD ZXC | Meppen |
@@ -39,7 +39,7 @@ Ga daarna naar http://localhost:8765.
 - **Protein Catcher**: vang kwark (+1), creatine (+2) en halters (+3). Pizza en donuts kosten een hartje, 5 keer op rij iets goeds missen ook. Een biertje maakt je 5 seconden dronken (besturing omgedraaid) en elke 25 seconden is het CHEAT DAY. Combo's geven x2 en x3.
 - **Bier Tapper**: tap bier voor de gasten in Cafe Jessy. Een biertje duwt een gast terug; daarna schuift hij het lege glas terug, dat je moet vangen. Studenten zijn snel, opa wil 3 bier en mam wil water (geen bier geven!). Soms fooi (+5), en elke 40 seconden HAPPY HOUR (punten x2).
 - **Jessy Breakout**: Jessy's hoofd is de bal. Vijf levels (VIBECODE, PROOST, HAPPY 33, BOE BOE! en een eindbaas: een gigantisch Jessy-hoofd dat pizza's gooit). Creatineblokken moet je 2x raken, halters 3x, koeblokken zijn onbreekbaar. Pizza maakt je peddel klein. Daarna begint ronde 2, sneller.
-- **Whack-a-Jessy**: 30 seconden meppen. Jessy +1, zonnebril-Jessy 2x meppen (+2), gouden Jessy +5, biertje +3 seconden, de koe -3 en mis-meppen -1. Combo's geven x2 en x3, de laatste 10 seconden is het FRENZY.
+- **Whack-a-Jessy**: 30 seconden meppen. Jessy +1, taaie Jessy met blauwe rand 2x meppen (+2), gouden Jessy +5, biertje +3 seconden, de koe -3 en mis-meppen -1. Combo's geven x2 en x3, de laatste 10 seconden is het FRENZY.
 
 ## Verrassingen
 

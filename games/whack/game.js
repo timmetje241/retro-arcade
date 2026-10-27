@@ -8,7 +8,7 @@
   const tekst = (...a) => Arcade.tekst(c, ...a);
   Arcade.schaalCanvas(canvas);
   const gezichten = Arcade.gezichten();
-  const MET_BRIL = [gezichten[1], gezichten[2]]; // de foto's met zonnebril
+  let gezicht = null; // elk potje een willekeurig gezicht van Jessy
 
   // --- Spelregels ---
   const SPEELTIJD = 30;
@@ -47,6 +47,7 @@
   const hamer = { x: W - 70, y: H - 60, slag: 0, herstel: 0 };
 
   function nieuwSpel() {
+    gezicht = Arcade.anderGezicht(gezichten, gezicht);
     toestand = "klaar";
     mollen = [];
     kreten = [];
@@ -87,7 +88,6 @@
     if (!vrij.length) return;
     const gat = vrij[Math.floor(Math.random() * vrij.length)];
     const soort = kiesSoort();
-    const lijst = soort.naam === "bril" ? MET_BRIL : gezichten;
     let boven = (1.05 - voortgang() * 0.5) * (isFrenzy() ? 0.75 : 1);
     if (soort.snel) boven *= 0.5;
     if (soort.naam === "bril") boven *= 1.3; // iets langer, want je moet twee keer meppen
@@ -95,7 +95,7 @@
       gat,
       soort,
       levens: soort.levens,
-      gezicht: lijst[Math.floor(Math.random() * lijst.length)],
+      gezicht,
       hoogte: 0,        // 0 = in het gat, 1 = helemaal boven
       boven,
       fase: "omhoog",
@@ -299,7 +299,8 @@
 
   function tekenJessy(m, x, y) {
     const goud = m.soort.naam === "goud";
-    c.fillStyle = m.geraakt ? "#ff3e5a" : goud ? "#ffd700" : m.tik > 0 ? "#fff" : "#ffe14d";
+    const taai = m.soort.naam === "bril";
+    c.fillStyle = m.geraakt ? "#ff3e5a" : goud ? "#ffd700" : m.tik > 0 ? "#fff" : taai ? "#3ef0ff" : "#ffe14d";
     c.beginPath();
     c.arc(x, y, goud ? 48 : 45, 0, Math.PI * 2);
     c.fill();
@@ -400,9 +401,9 @@
       c.fillRect(0, 0, W, H);
       tekst("WHACK-A-JESSY", W / 2, 130, 28, "#ffe14d");
       const uitleg = [
-        [() => Arcade.plaatje(c, gezichten[0], 0, 0, 26), "JESSY", "+1", "#5fd35f"],
-        [() => Arcade.plaatje(c, gezichten[1], 0, 0, 26), "ZONNEBRIL: 2X MEPPEN", "+2", "#5fd35f"],
-        [() => { c.fillStyle = "#ffd700"; c.beginPath(); c.arc(0, 0, 29, 0, Math.PI * 2); c.fill(); Arcade.plaatje(c, gezichten[4], 0, 0, 26); }, "GOUDEN JESSY (SNEL!)", "+5", "#ffd700"],
+        [() => Arcade.plaatje(c, gezicht, 0, 0, 26), "JESSY", "+1", "#5fd35f"],
+        [() => { c.fillStyle = "#3ef0ff"; c.beginPath(); c.arc(0, 0, 29, 0, Math.PI * 2); c.fill(); Arcade.plaatje(c, gezicht, 0, 0, 26); }, "TAAIE JESSY: 2X MEPPEN", "+2", "#5fd35f"],
+        [() => { c.fillStyle = "#ffd700"; c.beginPath(); c.arc(0, 0, 29, 0, Math.PI * 2); c.fill(); Arcade.plaatje(c, gezicht, 0, 0, 26); }, "GOUDEN JESSY (SNEL!)", "+5", "#ffd700"],
         [() => Tekening.bier(c, 0, 0, 50), "BIERTJE", "+3 SEC", "#3ef0ff"],
         [() => { c.font = "48px serif"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("🐄", 0, 0); }, "DE KOE", "-3", "#ff5a5a"],
         [() => tekst("?", 0, 0, 26, "#888"), "MIS-MEPPEN", "-1", "#ff5a5a"]
