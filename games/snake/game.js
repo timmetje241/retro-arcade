@@ -78,7 +78,8 @@
         if (!posities.some((p) => p.x === x && p.y === y)) vrij.push({ x, y });
       }
     }
-    const plek = vrij[Math.floor(Math.random() * vrij.length)];
+    // Het hele veld vol? Dan valt er niets meer te eten (en leg het eten buiten beeld)
+    const plek = vrij.length ? vrij[Math.floor(Math.random() * vrij.length)] : { x: -10, y: -10 };
     eten = { ...plek, soort: SOORTEN[Math.floor(Math.random() * SOORTEN.length)] };
   }
 

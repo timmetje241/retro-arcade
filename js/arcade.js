@@ -394,7 +394,7 @@ window.Arcade = (function () {
   function gezichten() {
     return [1, 2, 3, 4, 5].map((n) => {
       const img = new Image();
-      img.src = `../../img/jessy-${n}.png`;
+      img.src = new URL(`img/jessy-${n}.png`, BASIS).href;
       return img;
     });
   }
@@ -564,13 +564,19 @@ window.Arcade = (function () {
     return d.getMonth() === 9 && d.getDate() === 31;
   }
 
+  // Het spel staat stil bij pauze, bij de naamvraag en bij het highscore-venster. Dat laatste kan
+  // even na een game over verschijnen (eerst wordt online de top 10 opgehaald), dus soms al in een nieuw potje.
+  function staatStil() {
+    return gepauzeerd || gebruikerVraagOpen() || (!!naamLaag && naamLaag.classList.contains("open"));
+  }
+
   // Hoofdlus: roept elke frame update(dt) en teken() aan
   function lus(update, teken) {
     let vorige = performance.now();
     function stap(nu) {
       const dt = Math.max(0, Math.min((nu - vorige) / 1000, 1 / 30));
       vorige = nu;
-      if (!gepauzeerd && !gebruikerVraagOpen()) update(dt);
+      if (!staatStil()) update(dt);
       teken();
       requestAnimationFrame(stap);
     }
@@ -672,7 +678,7 @@ window.Arcade = (function () {
     isMuziekUit: () => muziekUit,
     muziekSpeelt: () => !muziek.paused,
     zetMuziekUit,
-    gepauzeerd: () => gepauzeerd || gebruikerVraagOpen(),
+    gepauzeerd: staatStil,
     gebruikersnaam,
     vraagGebruikersnaam,
     bijNaam,
