@@ -71,12 +71,13 @@ window.ARCADE_CONFIG = {
       geenRecord: true  // geen score, gewoon meppen
     },
     {
-      id: "binnenkort-8",
-      naam: "???",
-      beschrijving: "Binnenkort...",
-      pad: null,
-      kleur: "#555",
-      icoon: "🔒"
+      id: "voetbal",
+      naam: "KOPBAL",
+      beschrijving: "1 tegen 1 voetballen met grote hoofden, tegen de CPU of met z'n tweeën",
+      pad: "games/voetbal/index.html",
+      kleur: "#5fd35f",
+      icoon: "⚽",
+      geenRecord: true
     },
     {
       id: "binnenkort-9",

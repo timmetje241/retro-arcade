@@ -35,6 +35,8 @@ Bij het eerste bezoek vult iedereen een naam in. Die wordt per apparaat onthoude
 | Alle spellen | Esc / pauzeknop (rechtsonder) | Pauzemenu: verder, geluid, muziek, opnieuw, naar menu |
 | TV Meppen | Klik / tik, of spatie | Meppen |
 | TV Meppen | 1 / 2 / 3 | Hamer, klomp of koe |
+| Kopbal (1 speler) | Pijltjes of A/D, W of omhoog, spatie | Lopen, springen, trappen |
+| Kopbal (2 spelers) | Links: A/D, W, spatie. Rechts: pijltjes, omhoog, omlaag | Lopen, springen, trappen |
 | Overal | M | Geluid aan/uit |
 | Menu | H | Highscores bekijken |
 
@@ -48,6 +50,8 @@ Bij het eerste bezoek vult iedereen een naam in. Die wordt per apparaat onthoude
 - **Whack-a-Jessy**: 30 seconden meppen. Jessy +1, taaie Jessy met blauwe rand 2x meppen (+2), gouden Jessy +5, biertje +3 seconden, de koe -3 en mis-meppen -1. Combo's geven x2 en x3, de laatste 10 seconden is het FRENZY.
 
 - **TV Meppen**: mep de ouwe beeldbuis met het koninklijk huis erop aan gruzelementen, met een hamer (1), klomp (2) of vallende koe (3). Geen score: gewoon meppen tot hij ontploft.
+
+- **Kopbal**: 1 tegen 1 voetballen met grote hoofden (zoals het oude "1 on 1 Soccer"). Tegen de computer of met z'n tweeën op één toetsenbord. Standaard Jessy tegen een willekeurig maatje; wie wil, maakt voor de aftrap een selfie en speelt met zijn eigen hoofd (de selfie blijft op het apparaat).
 
 ## Verrassingen
 
