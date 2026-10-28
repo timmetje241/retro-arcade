@@ -234,7 +234,7 @@ window.Arcade = (function () {
 
   // Luistert vóór de spellen zelf, zodat toetsen in het pauzemenu niet bij het spel aankomen
   window.addEventListener("keydown", (e) => {
-    if (!IS_SPEL) return;
+    if (!IS_SPEL || gebruikerVraagOpen()) return; // eerst je naam invullen, dan pas pauzeren
     if (naamLaag && naamLaag.classList.contains("open")) {
       // Typen in het naamvak mag gewoon, maar het spel hoort er niets van
       e.stopImmediatePropagation();
@@ -570,12 +570,95 @@ window.Arcade = (function () {
     function stap(nu) {
       const dt = Math.max(0, Math.min((nu - vorige) / 1000, 1 / 30));
       vorige = nu;
-      if (!gepauzeerd) update(dt);
+      if (!gepauzeerd && !gebruikerVraagOpen()) update(dt);
       teken();
       requestAnimationFrame(stap);
     }
     requestAnimationFrame(stap);
   }
+
+  // --- Gebruikersnaam: iedereen vult bij het eerste bezoek een naam in, die per apparaat bewaard blijft ---
+  const MAX_NAAM = 12;
+  let gebruikerLaag = null;
+  // In een style="..."-attribuut mogen geen dubbele aanhalingstekens staan
+  const FONT_ATTR = FONT.replace(/"/g, "'");
+  const naamWachters = [];
+
+  function gebruikersnaam() {
+    return lees("naam", "");
+  }
+
+  function gebruikerVraagOpen() {
+    return !!gebruikerLaag && gebruikerLaag.style.display !== "none";
+  }
+
+  // Roept terug zodra er een naam is (meteen, als die er al was)
+  function bijNaam(terug) {
+    if (gebruikersnaam()) terug(gebruikersnaam());
+    else naamWachters.push(terug);
+  }
+
+  function vraagGebruikersnaam(magSluiten = false) {
+    if (!document.body) return;
+    if (!gebruikerLaag) {
+      gebruikerLaag = document.createElement("div");
+      gebruikerLaag.style.cssText = `position: fixed; inset: 0; z-index: 40; display: flex; align-items: center;
+        justify-content: center; background: rgba(5, 5, 20, 0.92); font-family: ${FONT}; padding: 16px;`;
+      gebruikerLaag.innerHTML = `
+        <form style="background: #15153a; border: 4px solid #ff3ea5; box-shadow: 8px 8px 0 #000; padding: 28px 22px;
+          display: flex; flex-direction: column; gap: 16px; width: min(380px, 100%); text-align: center;">
+          <h2 style="margin: 0; font-size: 20px; color: #ffe14d; text-shadow: 3px 3px 0 #ff3ea5; line-height: 1.5;">WELKOM!</h2>
+          <p style="margin: 0; font-size: 11px; color: #fff; line-height: 2;">WAT IS JE NAAM?</p>
+          <input name="naam" maxlength="${MAX_NAAM}" autocomplete="nickname" spellcheck="false" aria-label="Je naam"
+            style="font: 16px ${FONT_ATTR}; text-align: center; text-transform: uppercase; padding: 12px; background: #0b0b1e;
+            color: #ffe14d; border: 3px solid #ffe14d; outline: none;">
+          <p class="fout" style="margin: 0; font-size: 9px; color: #ff5a5a; min-height: 9px;"></p>
+          <button type="submit" style="font: 12px ${FONT_ATTR}; color: #0b0b1e; background: #3ef0ff; border: 3px solid #000;
+            padding: 14px 10px; cursor: pointer;">SPELEN!</button>
+          <button type="button" class="annuleer" style="font: 10px ${FONT_ATTR}; color: #fff; background: transparent;
+            border: 3px solid #555; padding: 10px; cursor: pointer;">ANNULEREN</button>
+          <p style="margin: 0; font-size: 8px; color: #8a8aa8; line-height: 1.8;">DEZE NAAM WORDT ONTHOUDEN<br>OP DIT APPARAAT</p>
+        </form>`;
+      document.body.appendChild(gebruikerLaag);
+      const formulier = gebruikerLaag.querySelector("form");
+      formulier.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const naam = formulier.naam.value.trim().toUpperCase().slice(0, MAX_NAAM);
+        if (!naam) {
+          gebruikerLaag.querySelector(".fout").textContent = "VUL EEN NAAM IN";
+          formulier.naam.focus();
+          return;
+        }
+        bewaar("naam", naam);
+        gebruikerLaag.style.display = "none";
+        formulier.naam.blur();
+        toon({ type: "square", van: 660, naar: 1320, duur: 0.15, volume: 0.1 });
+        naamWachters.splice(0).forEach((terug) => terug(naam));
+        window.dispatchEvent(new CustomEvent("arcade-naam", { detail: naam }));
+      });
+      gebruikerLaag.querySelector(".annuleer").addEventListener("click", () => {
+        gebruikerLaag.style.display = "none";
+      });
+    }
+    const formulier = gebruikerLaag.querySelector("form");
+    formulier.naam.value = gebruikersnaam();
+    gebruikerLaag.querySelector(".fout").textContent = "";
+    // Bij het eerste bezoek kun je niet annuleren: zonder naam geen arcade
+    gebruikerLaag.querySelector(".annuleer").style.display = magSluiten && gebruikersnaam() ? "block" : "none";
+    gebruikerLaag.style.display = "flex";
+    setTimeout(() => { formulier.naam.focus(); formulier.naam.select(); }, 50);
+  }
+
+  // Zolang het venster open is, horen het menu en de spellen niets van je toetsen
+  window.addEventListener("keydown", (e) => {
+    if (!gebruikerVraagOpen()) return;
+    e.stopImmediatePropagation();
+    if (e.code === "Escape" && gebruikerLaag.querySelector(".annuleer").style.display !== "none") {
+      gebruikerLaag.style.display = "none";
+    }
+  }, true);
+
+  if (!gebruikersnaam()) vraagGebruikersnaam();
 
   if (IS_SPEL) maakPauzeMenu();
 
@@ -589,7 +672,10 @@ window.Arcade = (function () {
     isMuziekUit: () => muziekUit,
     muziekSpeelt: () => !muziek.paused,
     zetMuziekUit,
-    gepauzeerd: () => gepauzeerd,
+    gepauzeerd: () => gepauzeerd || gebruikerVraagOpen(),
+    gebruikersnaam,
+    vraagGebruikersnaam,
+    bijNaam,
     highscoresAan: () => !!highscoreInstelling(),
     topScores,
     laatsteScores,

@@ -60,8 +60,11 @@
     return Math.round((jarig - new Date(nu.getFullYear(), nu.getMonth(), nu.getDate())) / 86400000);
   }
 
+  let laatsteBerichten = [];
   function toonLichtkrant(berichten) {
-    lichtkrant.textContent = berichten.join("   ★   ");
+    laatsteBerichten = berichten;
+    const naam = Arcade.gebruikersnaam();
+    lichtkrant.textContent = [...(naam ? [`HOI ${naam}!`] : []), ...berichten].join("   ★   ");
     // Lange tekst mag langer duren, zodat hij overal even snel loopt
     lichtkrant.style.setProperty("--duur", Math.max(15, lichtkrant.textContent.length * 0.22) + "s");
   }
@@ -89,6 +92,18 @@
       if (extra.length) toonLichtkrant([...berichten.slice(0, 1), ...extra, ...berichten.slice(1)]);
     });
   }
+
+  // Wie speelt er? Naam tonen en wijzigen
+  const spelerKnop = document.getElementById("speler");
+  function toonSpeler() {
+    spelerKnop.textContent = "SPELER: " + (Arcade.gebruikersnaam() || "?");
+  }
+  spelerKnop.addEventListener("click", () => Arcade.vraagGebruikersnaam(true));
+  window.addEventListener("arcade-naam", () => {
+    toonSpeler();
+    toonLichtkrant(laatsteBerichten);
+  });
+  toonSpeler();
 
   // Muziek en geluid aan/uit (knop of toets M)
   const geluidKnop = document.getElementById("geluid");

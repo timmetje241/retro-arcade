@@ -14,6 +14,10 @@ python -m http.server 8765
 
 Ga daarna naar http://localhost:8765.
 
+## Spelersnaam
+
+Bij het eerste bezoek vult iedereen een naam in. Die wordt per apparaat onthouden (in de browser), staat in het menu ("SPELER: ...", klik om te wijzigen) en wordt alvast ingevuld bij een highscore.
+
 ## Besturing
 
 | Waar | Toets | Wat |
