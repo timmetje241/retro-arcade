@@ -1,6 +1,6 @@
 // Highscore-overzicht: per spel de gedeelde top 10, en je eigen record op dit apparaat.
 (function () {
-  const spellen = window.ARCADE_CONFIG.spellen.filter((s) => s.pad);
+  const spellen = window.ARCADE_CONFIG.spellen.filter((s) => s.pad && !s.geenRecord);
   const borden = document.getElementById("borden");
   const melding = document.getElementById("melding");
 

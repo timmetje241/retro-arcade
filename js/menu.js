@@ -13,14 +13,15 @@
     knop.disabled = !spel.pad;
 
     const record = Arcade.lees(spel.id + ".record", 0);
+    const metScore = spel.pad && !spel.geenRecord;
     knop.innerHTML = `
       <span class="icoon">${spel.icoon}</span>
       <span class="naam">${spel.naam}</span>
       <span class="info">${spel.beschrijving}</span>
-      ${spel.pad ? `<span class="record">JOUW RECORD ${record}</span><span class="wereld"></span>` : ""}
+      ${metScore ? `<span class="record">JOUW RECORD ${record}</span><span class="wereld"></span>` : ""}
     `;
     // Wereldrecord uit de gedeelde highscores, als die aan staan
-    if (spel.pad && Arcade.highscoresAan()) {
+    if (metScore && Arcade.highscoresAan()) {
       Arcade.topScores(spel.id)
         .then((scores) => {
           if (scores.length) knop.querySelector(".wereld").textContent = `WERELD: ${scores[0].naam} ${scores[0].score}`;
@@ -80,7 +81,7 @@
   if (Arcade.highscoresAan()) {
     Promise.all([
       Arcade.laatsteScores(8).catch(() => []),
-      ...config.spellen.filter((s) => s.pad).map((s) => Arcade.topScores(s.id).then((l) => [s.id, l[0]]).catch(() => [s.id, null]))
+      ...config.spellen.filter((s) => s.pad && !s.geenRecord).map((s) => Arcade.topScores(s.id).then((l) => [s.id, l[0]]).catch(() => [s.id, null]))
     ]).then(([laatste, ...records]) => {
       const extra = [];
       laatste.forEach((s) => extra.push(`${s.naam} SCOORDE ${s.score} BIJ ${naamVan(s.spel)}`));

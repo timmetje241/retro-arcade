@@ -60,6 +60,31 @@ window.ARCADE_CONFIG = {
       pad: "games/whack/index.html",
       kleur: "#ff3e5a",
       icoon: "🔨"
+    },
+    {
+      id: "tv-meppen",
+      naam: "TV MEPPEN",
+      beschrijving: "Mep de ouwe beeldbuis helemaal aan gruzelementen",
+      pad: "games/tv-meppen/index.html",
+      kleur: "#ff8a3d",
+      icoon: "📺",
+      geenRecord: true  // geen score, gewoon meppen
+    },
+    {
+      id: "binnenkort-8",
+      naam: "???",
+      beschrijving: "Binnenkort...",
+      pad: null,
+      kleur: "#555",
+      icoon: "🔒"
+    },
+    {
+      id: "binnenkort-9",
+      naam: "???",
+      beschrijving: "Binnenkort...",
+      pad: null,
+      kleur: "#555",
+      icoon: "🔒"
     }
   ]
 };
