@@ -37,6 +37,60 @@ window.Arcade = (function () {
     return ctx;
   }
 
+  // --- Earrape-modus: alles overstuurd en met veel bas, maar met een begrenzer zodat het niet
+  // onbeperkt hard wordt (klinkt vreselijk, blaast geen speakers op) ---
+  let earrapeAan = false;
+  let earrapeIngang = null;
+
+  function earrapeKeten(a) {
+    if (earrapeIngang) return earrapeIngang;
+    const voor = a.createGain();
+    voor.gain.value = 7;                       // keihard de vervorming in
+    const vervorm = a.createWaveShaper();
+    const curve = new Float32Array(1024);
+    for (let i = 0; i < curve.length; i++) {
+      const x = (i / (curve.length - 1)) * 2 - 1;
+      curve[i] = Math.max(-0.9, Math.min(0.9, x * 3)); // harde clipping
+    }
+    vervorm.curve = curve;
+    const bas = a.createBiquadFilter();
+    bas.type = "lowshelf";
+    bas.frequency.value = 140;
+    bas.gain.value = 14;
+    const begrenzer = a.createDynamicsCompressor();
+    begrenzer.threshold.value = -10;
+    begrenzer.knee.value = 0;
+    begrenzer.ratio.value = 20;
+    begrenzer.attack.value = 0.002;
+    begrenzer.release.value = 0.1;
+    const na = a.createGain();
+    na.gain.value = 0.75;
+    voor.connect(vervorm);
+    vervorm.connect(bas);
+    bas.connect(begrenzer);
+    begrenzer.connect(na);
+    na.connect(a.destination);
+    earrapeIngang = voor;
+    return voor;
+  }
+
+  // Waar alle geluidjes naartoe gaan: gewoon naar de speakers, of eerst door de earrape-keten
+  function uitgang(a) {
+    return earrapeAan ? earrapeKeten(a) : a.destination;
+  }
+
+  // Een <audio>-element (bv. muziek) door de earrape-keten laten lopen
+  function koppelAanEarrape(element) {
+    const a = audio();
+    if (!a) return false;
+    try {
+      a.createMediaElementSource(element).connect(earrapeKeten(a));
+      return true;
+    } catch (e) {
+      return false; // bv. bij openen als los bestand (file://): dan maar zonder effect
+    }
+  }
+
   // Eén toon: type (square/sine/sawtooth/triangle), van frequentie naar frequentie.
   function toon({ type = "square", van = 440, naar = van, duur = 0.1, volume = 0.15, vertraging = 0, filter = 0 }) {
     if (stil) return;
@@ -59,7 +113,7 @@ window.Arcade = (function () {
       laatste = lp;
     }
     laatste.connect(gain);
-    gain.connect(a.destination);
+    gain.connect(uitgang(a));
     osc.start(start);
     osc.stop(start + duur + 0.05);
   }
@@ -76,7 +130,7 @@ window.Arcade = (function () {
     gain.gain.value = volume;
     bron.buffer = buffer;
     bron.connect(gain);
-    gain.connect(a.destination);
+    gain.connect(uitgang(a));
     bron.start();
   }
 
@@ -683,6 +737,8 @@ window.Arcade = (function () {
     muziekSpeelt: () => !muziek.paused,
     zetMuziekUit,
     geenMuziekHier: () => { muziekHier = false; speelMuziek(); },
+    zetEarrape: (aan) => { earrapeAan = aan; },
+    koppelAanEarrape,
     gepauzeerd: staatStil,
     gebruikersnaam,
     vraagGebruikersnaam,

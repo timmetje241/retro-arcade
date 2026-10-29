@@ -8,7 +8,33 @@
   const RECORD_SLEUTEL = "gluren.record";
   const tekst = (...a) => Arcade.tekst(c, ...a);
   Arcade.schaalCanvas(canvas);
-  Arcade.geenMuziekHier(); // de Polish cow even uit, anders hoor je de memes niet
+  Arcade.geenMuziekHier(); // de gewone Polish cow uit; hier knalt alleen de earrape-versie tijdens het gluren
+  Arcade.zetEarrape(true); // alle meme-geluiden overstuurd, met een begrenzer erop
+
+  // De earrape Polish cow: speelt alleen zolang Jessy op zijn telefoon kijkt
+  const earrapeMuziek = new Audio("../../muziek/polish-cow-8bit.mp3");
+  earrapeMuziek.loop = true;
+  let earrapeGekoppeld = false;
+
+  function regelEarrape() {
+    const aan = telefoon > 0.6 && toestand === "spelen" && !Arcade.isStil() && !Arcade.gepauzeerd() && !document.hidden;
+    if (aan && earrapeMuziek.paused) {
+      // Pas koppelen na de eerste toets of klik; eerder mag de browser geen geluid maken
+      if (!earrapeGekoppeld) earrapeGekoppeld = Arcade.koppelAanEarrape(earrapeMuziek) || "los";
+      earrapeMuziek.play().catch(() => {});
+    } else if (!aan && !earrapeMuziek.paused) {
+      earrapeMuziek.pause();
+    }
+  }
+
+  // Ook stoppen bij pauze of als je naar een ander tabblad gaat (dan draait de spellus niet)
+  document.addEventListener("visibilitychange", () => { if (document.hidden) earrapeMuziek.pause(); });
+
+  function krasGeluid() {
+    // Plaatkras als de muziek abrupt stopt
+    Arcade.toon({ type: "sawtooth", van: 900, naar: 80, duur: 0.25, volume: 0.15 });
+    Arcade.ruis({ duur: 0.2, volume: 0.2 });
+  }
 
   const gezichten = Arcade.gezichten();
   const lisa = new Image();
@@ -159,6 +185,8 @@
     gluurt = false;
     achterElkaar = 0;
     if (window.speechSynthesis) speechSynthesis.cancel();
+    earrapeMuziek.pause();
+    krasGeluid();
     dunDunDun();
     setTimeout(sadTrombone, 900);
     kreten.push({ tekst: BETRAPT_TEKST[Math.floor(Math.random() * BETRAPT_TEKST.length)], x: 300, y: 120, leeftijd: 0, groot: true, kleur: "#ff5a5a" });
@@ -220,6 +248,7 @@
     // De telefoon gaat niet in één keer weg: even opletten dus
     const doel = gluurt && toestand === "spelen" ? 1 : 0;
     telefoon += Math.sign(doel - telefoon) * Math.min(Math.abs(doel - telefoon), dt * 7);
+    regelEarrape();
 
     if (toestand === "betrapt" && tijd - sinds > 1.8) {
       if (betrapt >= MAX_BETRAPT) einde();
@@ -424,6 +453,7 @@
   }
 
   function teken() {
+    if (toestand !== undefined) regelEarrape();
     c.save();
     if (schud > 0) c.translate((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 6);
     tekenKamer();
@@ -451,7 +481,8 @@
       tekst("? = ZE WORDT ACHTERDOCHTIG", W / 2, 306, 10, "#ffe14d");
       tekst("LANGER GLUREN = MEER PUNTEN", W / 2, 330, 10, "#5fd35f");
       tekst("3X BETRAPT = TELEFOON AFGEPAKT", W / 2, 354, 10, "#ff5a5a");
-      tekst("SPATIE / KLIK = START", W / 2, 410, 16);
+      tekst("LET OP: EARRAPE! VOLUME NIET TE HARD", W / 2, 385, 10, "#ff5a5a");
+      tekst("SPATIE / KLIK = START", W / 2, 420, 16);
       tekst("RECORD " + record, W / 2, 450, 10, "#ffe14d");
     } else if (toestand === "betrapt") {
       tekst("BETRAPT!", W / 2, 440, 30, "#ff5a5a");
