@@ -6,6 +6,7 @@
   const W = canvas.width;
   const H = canvas.height;
   const RECORD_SLEUTEL = "bartender.record";
+  const BOEK_SLEUTEL = "bartender.boek";   // ontdekte recepten, per apparaat
   const tekst = (...a) => Arcade.tekst(c, ...a);
   Arcade.schaalCanvas(canvas);
   const gezichten = Arcade.gezichten();
@@ -18,6 +19,7 @@
   const SNELHEIDSBONUS = 25;
   const PROEF_DUUR = 1.4;          // optillen, drinken en neerzetten
   const REACTIE_DUUR = 3.2;
+  const ONTDEK_BONUS = 25;         // per nieuw ontdekt recept
 
   // --- Plekken in beeld ---
   const TOOG = 440;                // bovenkant van de bar
@@ -117,6 +119,9 @@
   let tijd = 0, sinds = 0, kreten = [], deeltjes = [], schud = 0, flits = 0;
   let muis = { x: -1, y: -1 };
   let record = Arcade.lees(RECORD_SLEUTEL, 0);
+  // Jessy bestelt alleen de naam. Het recept zie je pas als je het zelf een keer goed hebt gemixt.
+  let boek = new Set(Arcade.lees(BOEK_SLEUTEL, []));
+  let boekOpen = false;
 
   function nieuwSpel() {
     toestand = "klaar";
@@ -172,14 +177,41 @@
   }
 
   // 1 = precies goed, 0 = helemaal mis. Kleine afwijkingen (te laat losgelaten) kosten bijna niets.
-  function nauwkeurigheid(mix) {
-    const totaalRecept = som(recept.delen);
+  function nauwkeurigheid(mix, r = recept) {
+    const totaalRecept = som(r.delen);
     if (som(mix) < 0.3) return 0;
     let fout = 0;
-    for (const id of new Set([...Object.keys(recept.delen), ...Object.keys(mix)])) {
-      fout += Math.abs((recept.delen[id] || 0) - (mix[id] || 0));
+    for (const id of new Set([...Object.keys(r.delen), ...Object.keys(mix)])) {
+      fout += Math.abs((r.delen[id] || 0) - (mix[id] || 0));
     }
     return Math.max(0, Math.min(1, 1 - Math.max(0, fout / totaalRecept - 0.05) * 1.25));
+  }
+
+  // Zelfde flessen als het recept (druppeltjes tellen niet) en de verhoudingen ongeveer goed?
+  function lijktOp(mix, r) {
+    const erin = Object.keys(mix).filter((id) => mix[id] >= 0.3).sort().join();
+    return erin === Object.keys(r.delen).sort().join() && nauwkeurigheid(mix, r) >= 0.75;
+  }
+
+  // Jessy's tip na het proeven: wat zat er het meest naast?
+  function tipVoor(mix, onderdelen) {
+    let ergste = null, grootste = 0.4;
+    for (const id of new Set([...Object.keys(recept.delen), ...Object.keys(mix)])) {
+      const verschil = (mix[id] || 0) - (recept.delen[id] || 0);
+      if (Math.abs(verschil) > grootste) { grootste = Math.abs(verschil); ergste = { id, verschil }; }
+    }
+    if (ergste) {
+      const naam = DRANKEN[ergste.id].naam;
+      if (!recept.delen[ergste.id]) return naam + " HOORT ER NIET IN";
+      if ((mix[ergste.id] || 0) < 0.3) return "ER MIST: " + naam;
+      return (ergste.verschil > 0 ? "TE VEEL " : "TE WEINIG ") + naam;
+    }
+    const fout = onderdelen.find((o) => !o[1]);
+    if (!fout) return null;
+    if (fout[0] === "GLAS") return "PROBEER EEN ANDER GLAS";
+    if (fout[0] === "IJS") return recept.ijs ? "HIJ WIL IJS" : "HIJ WIL GEEN IJS";
+    if (fout[0] === "GARNERING") return "ANDERE GARNERING";
+    return recept.methode === "shaken" ? "LIEVER SHAKEN" : "LIEVER ROEREN";
   }
 
   // --- Geluidjes ---
@@ -231,6 +263,7 @@
     { id: "roeren", tekst: "ROEREN", x: 265, y: 474, w: 125, h: 44 },
     { id: "weg", tekst: "WEGGOOIEN", x: 400, y: 474, w: 165, h: 44 },
     ...["limoen", "sinas", "kers", "olijf", "parasol"].map((g, i) => ({ id: "g-" + g, garnering: g, tekst: "", x: 20 + i * 78, y: 528, w: 70, h: 44 })),
+    { id: "boek", tekst: "RECEPTEN", x: 420, y: 528, w: 145, h: 44 },
     { id: "serveer", tekst: "SERVEREN", x: 600, y: 474, w: 250, h: 98 }
   ];
 
@@ -272,6 +305,9 @@
       Arcade.toon({ type: "square", van: 700, naar: 900, duur: 0.06, volume: 0.06 });
     } else if (k.id === "serveer") {
       serveer();
+    } else if (k.id === "boek") {
+      boekOpen = true;
+      Arcade.toon({ type: "triangle", van: 500, naar: 700, duur: 0.08, volume: 0.06 });
     }
   }
 
@@ -373,9 +409,19 @@
     const perfect = n >= 0.95 && onderdelen.every((o) => o[1]);
     reeks = perfect ? reeks + 1 : 0;
     const reeksBonus = reeks > 1 ? 10 * (reeks - 1) : 0;
-    const punten = basis + bonus + reeksBonus;
+    // Elk recept dat je (ongeveer) goed mixt, komt in je receptenboek. Ook als Jessy iets anders bestelde.
+    const ontdekt = RECEPTEN.filter((r) => !boek.has(r.naam) && lijktOp(mix, r));
+    ontdekt.forEach((r) => boek.add(r.naam));
+    if (ontdekt.length) Arcade.bewaar(BOEK_SLEUTEL, [...boek]);
+    const ontdekBonus = ontdekt.length * ONTDEK_BONUS;
+    const ander = RECEPTEN.find((r) => r !== recept && lijktOp(mix, r));
+    const punten = basis + bonus + reeksBonus + ontdekBonus;
     score += punten;
-    proef = { t: 0, klok: 0, gedaan: new Set(), reactie: kiesReactie(mix, basis), mixPunten, onderdelen, bonus, reeksBonus, punten };
+    proef = {
+      t: 0, klok: 0, gedaan: new Set(), reactie: kiesReactie(mix, basis), mixPunten, onderdelen, bonus, reeksBonus, punten,
+      ontdekBonus, ontdekt: ontdekt.map((r) => r.naam), ander: ander && ander.naam, tip: tipVoor(mix, onderdelen)
+    };
+    boekOpen = false;
     toestand = "proeven";
     schenk = null;
   }
@@ -409,6 +455,12 @@
       zeg(info.zeg[Math.floor(Math.random() * info.zeg.length)]);
       if (soort === "perfect" && reeks > 1) kreet("PERFECTE REEKS X" + reeks, 633, 330, "#ff3ea5");
       if (soort === "perfect") Arcade.confetti(60);
+      if (proef.ander) kreet("DAT IS EEN " + proef.ander + "!", 300, 250, "#3ef0ff");
+    });
+    if (proef.ontdekt.length && r >= 0.7) eenmalig("ontdekt", () => {
+      kreet("NIEUW RECEPT ONTDEKT!", 300, 150, "#5fd35f", true);
+      kreet(proef.ontdekt.join(" + ") + " IN JE BOEK", 300, 190, "#5fd35f");
+      [784, 988, 1175, 1568].forEach((f, i) => Arcade.toon({ type: "triangle", van: f, duur: 0.15, volume: 0.08, vertraging: i * 0.08 }));
     });
     const kans = (perSec) => Math.random() < perSec * dt;
     if (soort === "perfect" && kans(10)) {
@@ -464,6 +516,7 @@
   }
 
   function volgende() {
+    boekOpen = false;
     nummer++;
     if (nummer >= AANTAL_BESTELLINGEN) einde();
     else {
@@ -515,6 +568,7 @@
       return;
     }
     if (toestand !== "mixen") return;
+    if (boekOpen) { boekOpen = false; return; }
     const knop = knopOp(p);
     if (knop) return drukKnop(knop);
     if (ijsemmerOp(p)) return drukKnop(KNOPPEN[0]);
@@ -538,7 +592,7 @@
   canvas.addEventListener("pointerdown", (e) => { e.preventDefault(); druk(punt(e)); });
   canvas.addEventListener("pointermove", (e) => {
     muis = punt(e);
-    const klikbaar = toestand !== "mixen" || knopOp(muis) || fleskOp(muis) || glasOp(muis) || ijsemmerOp(muis);
+    const klikbaar = toestand !== "mixen" || boekOpen || knopOp(muis) || fleskOp(muis) || glasOp(muis) || ijsemmerOp(muis);
     canvas.style.cursor = klikbaar ? "pointer" : "default";
   });
   canvas.addEventListener("pointerleave", () => { muis = { x: -1, y: -1 }; });
@@ -550,6 +604,7 @@
       e.preventDefault();
       if (!e.repeat && toestand !== "mixen") druk({ x: -1, y: -1 });
     } else if (e.code === "KeyM") Arcade.zetStil(!Arcade.isStil());
+    else if (e.code === "KeyB" && toestand === "mixen") boekOpen = !boekOpen;
   });
 
   // --- Bijwerken ---
@@ -1191,19 +1246,30 @@
     const mx = x + w / 2;
     if (toestand === "proeven" && proef.t > PROEF_DUUR + 0.2) return tekenBeoordeling(x, y, w);
     tekst("BESTELLING " + (nummer + 1) + "/" + AANTAL_BESTELLINGEN, mx, y + 24, 8, "#ffe14d");
-    tekst(recept.naam, mx, y + 48, recept.naam.length > 13 ? 9 : 12, "#fff");
-    let ry = y + 78;
-    for (const [id, delen] of Object.entries(recept.delen)) {
-      c.fillStyle = DRANKEN[id].kleur;
-      c.fillRect(x + 20, ry - 6, 12, 12);
-      tekst(delen + " " + DRANKEN[id].naam, x + 40, ry, 8, "#e8e8e8", "left");
-      ry += 20;
+    tekst("JESSY WIL EEN...", mx, y + 42, 7, "#ddd");
+    tekst(recept.naam, mx, y + 62, recept.naam.length > 13 ? 9 : 12, "#fff");
+    if (boek.has(recept.naam)) {
+      // Dit recept ken je al: het staat in je boek
+      let ry = y + 90;
+      for (const [id, delen] of Object.entries(recept.delen)) {
+        c.fillStyle = DRANKEN[id].kleur;
+        c.fillRect(x + 20, ry - 6, 12, 12);
+        tekst(delen + " " + DRANKEN[id].naam, x + 40, ry, 8, "#e8e8e8", "left");
+        ry += 19;
+      }
+      ry = Math.max(ry + 2, y + 174);
+      tekst(recept.ijs ? "+ IJS" : "ZONDER IJS", x + 20, ry, 7, "#9be7ff", "left");
+      tekst(recept.methode === "shaken" ? "SHAKEN" : "ROEREN", x + 20, ry + 15, 7, "#9be7ff", "left");
+      tekst(GLAS[recept.glas].naam, x + 20, ry + 30, 7, "#9be7ff", "left");
+      tekst(GARNERINGEN[recept.garnering], x + 20, ry + 45, 7, "#9be7ff", "left");
+    } else {
+      // Onbekend recept: zelf uitzoeken
+      tekst("???", mx, y + 110, 26, "#ffe14d");
+      tekst("NOG NIET IN JE BOEK", mx, y + 150, 7, "#ff9ec7");
+      tekst(Object.keys(recept.delen).length + " INGREDIENTEN", mx, y + 175, 8, "#9be7ff");
+      tekst("PROBEER MAAR!", mx, y + 200, 8, "#e8e8e8");
+      tekst("JESSY GEEFT TIPS", mx, y + 218, 7, "#bbb");
     }
-    ry = Math.max(ry + 4, y + 170);
-    tekst(recept.ijs ? "+ IJS" : "ZONDER IJS", x + 20, ry, 8, "#9be7ff", "left");
-    tekst(recept.methode === "shaken" ? "SHAKEN" : "ROEREN", x + 20, ry + 18, 8, "#9be7ff", "left");
-    tekst(GLAS[recept.glas].naam, x + 20, ry + 36, 8, "#9be7ff", "left");
-    tekst(GARNERINGEN[recept.garnering], x + 20, ry + 54, 8, "#9be7ff", "left");
     // Tijd voor de snelheidsbonus
     const k = Math.max(0, resterend / limiet);
     c.fillStyle = "rgba(255, 255, 255, 0.15)";
@@ -1217,16 +1283,22 @@
   function tekenBeoordeling(x, y, w) {
     const mx = x + w / 2;
     tekst("BEOORDELING", mx, y + 26, 10, "#ffe14d");
-    tekst("MIX " + proef.mixPunten + "/60", x + 20, y + 60, 8, "#fff", "left");
+    tekst("MIX " + proef.mixPunten + "/60", x + 20, y + 50, 8, "#fff", "left");
     proef.onderdelen.forEach(([naam, goed], i) => {
-      tekst(naam, x + 20, y + 84 + i * 20, 8, "#ddd", "left");
-      tekst(goed ? "+10" : "FOUT", x + w - 20, y + 84 + i * 20, 8, goed ? "#5fd35f" : "#ff5a5a", "right");
+      tekst(naam, x + 20, y + 70 + i * 17, 7, "#ddd", "left");
+      tekst(goed ? "+10" : "FOUT", x + w - 20, y + 70 + i * 17, 7, goed ? "#5fd35f" : "#ff5a5a", "right");
     });
-    tekst("SNELHEID +" + proef.bonus, x + 20, y + 172, 8, "#9be7ff", "left");
-    if (proef.reeksBonus) tekst("REEKS +" + proef.reeksBonus, x + 20, y + 192, 8, "#ff3ea5", "left");
-    tekst("TOTAAL +" + proef.punten, mx, y + 224, 12, "#ffe14d");
-    tekst("SCORE " + score, mx, y + 280, 10, "#fff");
-    if (proef.t > PROEF_DUUR + 1.2 && Math.floor(tijd * 2) % 2 === 0) tekst("KLIK = VERDER", mx, y + 254, 7, "#ddd");
+    let ry = y + 144;
+    tekst("SNELHEID +" + proef.bonus, x + 20, ry, 7, "#9be7ff", "left");
+    if (proef.reeksBonus) tekst("REEKS +" + proef.reeksBonus, x + 20, (ry += 16), 7, "#ff3ea5", "left");
+    if (proef.ontdekBonus) tekst("ONTDEKT +" + proef.ontdekBonus, x + 20, (ry += 16), 7, "#5fd35f", "left");
+    tekst("TOTAAL +" + proef.punten, mx, y + 200, 12, "#ffe14d");
+    if (proef.tip) {
+      tekst("JESSY'S TIP:", mx, y + 224, 7, "#ff9ec7");
+      tekst(proef.tip, mx, y + 240, 6, "#fff");
+    }
+    tekst("SCORE " + score, mx, y + 282, 10, "#fff");
+    if (proef.t > PROEF_DUUR + 1.2 && Math.floor(tijd * 2) % 2 === 0) tekst("KLIK = VERDER", mx, y + 262, 7, "#ddd");
   }
 
   function tekenKnoppen() {
@@ -1253,6 +1325,35 @@
       c.globalAlpha = 1;
     });
     if (over && over.garnering) tekst(GARNERINGEN[over.garnering], over.x + over.w / 2, over.y - 12, 8, "#ffe14d");
+  }
+
+  function tekenBoek() {
+    c.fillStyle = "rgba(0, 0, 0, 0.6)";
+    c.fillRect(0, 0, W, H);
+    c.fillStyle = "#5d3a1a";
+    c.fillRect(40, 24, W - 80, H - 48);
+    c.fillStyle = "#3b2a1a";
+    c.fillRect(50, 34, W - 100, H - 68);
+    c.fillStyle = "#c9a227";
+    c.fillRect(W / 2 - 2, 70, 4, H - 130);
+    tekst("RECEPTENBOEK", W / 2, 54, 14, "#ffe14d");
+    tekst(boek.size + "/" + RECEPTEN.length + " ONTDEKT", W / 2, 76, 8, "#fff");
+    const helft = Math.ceil(RECEPTEN.length / 2);
+    RECEPTEN.forEach((r, i) => {
+      const x = i < helft ? 66 : W / 2 + 16;
+      const y = 104 + (i % helft) * 48;
+      if (boek.has(r.naam)) {
+        tekst(r.naam, x, y, 9, "#ffe14d", "left");
+        const flessen = Object.entries(r.delen).map(([id, d]) => d + " " + DRANKEN[id].naam).join(", ");
+        tekst(flessen, x, y + 15, 6, "#fff", "left");
+        const rest = [r.ijs ? "IJS" : "GEEN IJS", r.methode.toUpperCase(), GLAS[r.glas].kort, r.garnering === "geen" ? "" : GARNERINGEN[r.garnering]];
+        tekst(rest.filter(Boolean).join(" - "), x, y + 29, 6, "#9be7ff", "left");
+      } else {
+        tekst(r.naam, x, y, 9, "#8d7b5a", "left");
+        tekst("??? NOG NIET ONTDEKT", x, y + 15, 6, "#999", "left");
+      }
+    });
+    tekst("KLIK / B = DICHT    (DE KLOK LOOPT DOOR!)", W / 2, H - 46, 8, "#fff");
   }
 
   function tekenDeeltjes() {
@@ -1292,6 +1393,7 @@
     tekenKnoppen();
     tekenDeeltjes();
     c.restore();
+    if (boekOpen && toestand === "mixen") tekenBoek();
 
     kreten.forEach((k) => {
       c.globalAlpha = Math.max(0, 1 - k.leeftijd / 1.6);
@@ -1307,14 +1409,16 @@
       c.fillStyle = "rgba(0, 0, 0, 0.78)";
       c.fillRect(0, 0, W, H);
       tekst("JESSY'S BAR", W / 2, 70, 34, "#ff3e5a");
-      tekst("BARMAN JESSY HEEFT DORST. MIX DE COCKTAILS VAN HET KRIJTBORD!", W / 2, 125, 10);
+      tekst("BARMAN JESSY HEEFT DORST EN ROEPT ALLEEN DE NAAM VAN ZIJN COCKTAIL.", W / 2, 118, 9);
+      tekst("KEN JE HET RECEPT NIET? PROBEER MAAR, JESSY GEEFT TIPS!", W / 2, 138, 9);
       tekst("1. KIES EEN GLAS OP DE BAR", W / 2, 175, 11, "#3ef0ff");
-      tekst("2. HOUD EEN FLES INGEDRUKT OM TE SCHENKEN (STREEPJE = 1 DEEL)", W / 2, 202, 11, "#3ef0ff");
-      tekst("3. IJS ERIN? DAN SHAKEN OF ROEREN", W / 2, 229, 11, "#3ef0ff");
-      tekst("4. GARNEREN EN SERVEREN: JESSY PROEFT", W / 2, 256, 11, "#3ef0ff");
-      tekst("PUNTEN: PRECIEZE MIX (60) + GLAS, IJS, METHODE, GARNERING (4X10)", W / 2, 305, 9, "#ffe14d");
-      tekst("+ SNELHEIDSBONUS (25) + PERFECTE REEKS", W / 2, 327, 9, "#ffe14d");
-      tekst("8 BESTELLINGEN PER AVOND. VERPEST HET EN JESSY REAGEERT...", W / 2, 360, 9, "#ff3ea5");
+      tekst("2. HOUD EEN FLES INGEDRUKT OM TE SCHENKEN (STREEPJE = 1 DEEL)", W / 2, 200, 11, "#3ef0ff");
+      tekst("3. IJS ERIN? DAN SHAKEN OF ROEREN", W / 2, 225, 11, "#3ef0ff");
+      tekst("4. GARNEREN EN SERVEREN: JESSY PROEFT", W / 2, 250, 11, "#3ef0ff");
+      tekst("GOED GEMIXT = RECEPT IN JE RECEPTENBOEK (+" + ONTDEK_BONUS + ")   " + boek.size + "/" + RECEPTEN.length, W / 2, 285, 9, "#5fd35f");
+      tekst("PUNTEN: PRECIEZE MIX (60) + GLAS, IJS, METHODE, GARNERING (4X10)", W / 2, 312, 9, "#ffe14d");
+      tekst("+ SNELHEIDSBONUS (25) + PERFECTE REEKS", W / 2, 332, 9, "#ffe14d");
+      tekst("8 BESTELLINGEN PER AVOND. VERPEST HET EN JESSY REAGEERT...", W / 2, 362, 9, "#ff3ea5");
       tekst("KLIK / SPATIE = OPEN DE BAR", W / 2, 420, 16);
       tekst("RECORD " + record, W / 2, 460, 10, "#ffe14d");
     } else if (toestand === "einde") {

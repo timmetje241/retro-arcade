@@ -38,6 +38,7 @@ Bij het eerste bezoek vult iedereen een naam in. Die wordt per apparaat onthoude
 | Stiekem Gluren | Spatie / muis / vinger ingedrukt houden | Gluren |
 | Jessy's Bar | Muis / vinger: fles ingedrukt houden | Schenken (1 streepje = 1 deel) |
 | Jessy's Bar | Klik op glas, ijs en knoppen | Glas kiezen, ijs, shaken/roeren, garneren, serveren |
+| Jessy's Bar | B / knop RECEPTEN | Receptenboek openen |
 | Overal | M | Geluid aan/uit |
 | Menu | H | Highscores bekijken |
 
@@ -55,8 +56,8 @@ Bij het eerste bezoek vult iedereen een naam in. Die wordt per apparaat onthoude
 
 - **Stiekem Gluren**: Jessy kijkt op de bank stiekem dank memes op zijn telefoon (spatie of muis ingedrukt houden). Laat los als Lisa achterdochtig wordt, want 3x betrapt = telefoon afgepakt. De meme-geluiden (vine boom, airhorn, hitmarker, sad trombone) zijn zelf nagemaakt en de browser zegt de memes hardop.
 
-- **Jessy's Bar**: naar het oude flashspel "Bartender: The Right Mix". Barman Jessy (lang hoofd, krulsnor) bestelt 8 cocktails van het krijtbord. Kies een glas, schenk de flessen in de mengbeker (fles ingedrukt houden, 1 streepje = 1 deel), doe er ijs bij, shake of roer, garneer en serveer. Jessy proeft en reageert: van een dansje bij een perfecte cocktail tot vuurspuwen (tabasco), ontploffen (melk met prik), spierballen (creatine), blauw worden, een boer laten of dronken achter de bar omvallen.
-  - **Score per cocktail**: precieze mix (max 60) + juiste glas, ijs, shaken/roeren en garnering (4 x 10) + snelheidsbonus (max 25) + bonus voor een reeks perfecte cocktails (+10, +20, ...). De hoogste totaalscore van de avond komt in de highscores.
+- **Jessy's Bar**: naar het oude flashspel "Bartender: The Right Mix". Barman Jessy (lang hoofd, krulsnor) bestelt 8 cocktails, maar roept alleen de naam. Ken je het recept niet, dan probeer je maar wat: na het proeven geeft Jessy een tip ("ER MIST: LIMOENSAP", "TE VEEL COLA", "LIEVER SHAKEN"). Mix je een cocktail ongeveer goed (ook een andere dan hij vroeg), dan komt het recept in je receptenboek (knop RECEPTEN of toets B) en staat het voortaan op het krijtbord. Het boek wordt per apparaat bewaard. Kies een glas, schenk de flessen in de mengbeker (fles ingedrukt houden, 1 streepje = 1 deel), doe er ijs bij, shake of roer, garneer en serveer. Jessy proeft en reageert: van een dansje bij een perfecte cocktail tot vuurspuwen (tabasco), ontploffen (melk met prik), spierballen (creatine), blauw worden, een boer laten of dronken achter de bar omvallen.
+  - **Score per cocktail**: precieze mix (max 60) + juiste glas, ijs, shaken/roeren en garnering (4 x 10) + snelheidsbonus (max 25) + bonus voor een reeks perfecte cocktails (+10, +20, ...) + 25 per nieuw ontdekt recept. De hoogste totaalscore van de avond komt in de highscores.
 
 ## Verrassingen
 
