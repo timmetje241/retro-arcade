@@ -18,13 +18,13 @@
       <span class="icoon">${spel.icoon}</span>
       <span class="naam">${spel.naam}</span>
       <span class="info">${spel.beschrijving}</span>
-      ${metScore ? `<span class="record">JOUW RECORD ${record}</span><span class="wereld"></span>` : ""}
+      ${metScore ? `<span class="record">JOUW RECORD ${Arcade.scoreTekst(spel.id, record)}</span><span class="wereld"></span>` : ""}
     `;
     // Wereldrecord uit de gedeelde highscores, als die aan staan
     if (metScore && Arcade.highscoresAan()) {
       Arcade.topScores(spel.id)
         .then((scores) => {
-          if (scores.length) knop.querySelector(".wereld").textContent = `WERELD: ${scores[0].naam} ${scores[0].score}`;
+          if (scores.length) knop.querySelector(".wereld").textContent = `WERELD: ${scores[0].naam} ${Arcade.scoreTekst(spel.id, scores[0].score)}`;
         })
         .catch(() => {});
     }
@@ -87,8 +87,8 @@
       ...config.spellen.filter((s) => s.pad && !s.geenRecord).map((s) => Arcade.topScores(s.id).then((l) => [s.id, l[0]]).catch(() => [s.id, null]))
     ]).then(([laatste, ...records]) => {
       const extra = [];
-      laatste.forEach((s) => extra.push(`${s.naam} SCOORDE ${s.score} BIJ ${naamVan(s.spel)}`));
-      records.forEach(([id, top]) => { if (top) extra.push(`WERELDRECORD ${naamVan(id)}: ${top.naam} MET ${top.score}`); });
+      laatste.forEach((s) => extra.push(`${s.naam} SCOORDE ${Arcade.scoreTekst(s.spel, s.score)} BIJ ${naamVan(s.spel)}`));
+      records.forEach(([id, top]) => { if (top) extra.push(`WERELDRECORD ${naamVan(id)}: ${top.naam} MET ${Arcade.scoreTekst(id, top.score)}`); });
       if (extra.length) toonLichtkrant([...berichten.slice(0, 1), ...extra, ...berichten.slice(1)]);
     });
   }

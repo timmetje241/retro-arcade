@@ -334,6 +334,16 @@ window.Arcade = (function () {
     return antwoord.status === 204 || antwoord.status === 201 ? null : antwoord.json();
   }
 
+  // Een score zoals je hem wilt lezen. Bij de 100 meter (QWOP) staat in de score zowel de tijd als de afstand:
+  // finish = 100000 - tienden van seconden (sneller = hoger), gevallen = afstand in decimeters (altijd lager).
+  const FINISH_BASIS = 100000;
+  function scoreTekst(spel, score) {
+    const instelling = (window.ARCADE_CONFIG.spellen || []).find((s) => s.id === spel);
+    if (!instelling || instelling.scoreSoort !== "100m") return String(score);
+    if (score >= FINISH_BASIS / 2) return ((FINISH_BASIS - score) / 10).toFixed(1) + " SEC";
+    return (score / 10).toFixed(1) + " M";
+  }
+
   // De laatst ingestuurde scores van alle spellen, nieuwste eerst (voor de lichtkrant)
   function laatsteScores(aantal = 10) {
     if (!highscoreInstelling()) return Promise.resolve([]);
@@ -389,7 +399,7 @@ window.Arcade = (function () {
 
     if (!naamLaag) maakNaamLaag();
     const vak = naamLaag.querySelector(".naam-vak");
-    naamLaag.querySelector(".naam-info").innerHTML = `SCORE ${score}<br>PLEK #${plek} VAN DE WERELD`;
+    naamLaag.querySelector(".naam-info").innerHTML = `SCORE ${scoreTekst(spel, score)}<br>PLEK #${plek} VAN DE WERELD`;
     vak.value = lees("naam", "");
     naamLaag.classList.add("open");
     setTimeout(() => { vak.focus(); vak.select(); }, 50);
@@ -516,6 +526,7 @@ window.Arcade = (function () {
     breakout: ["ZELFS BEERTJE (4) MIKT BETER", "DE KOE WON"],
     whack: ["ZELFS BEERTJE (4) MEPT HARDER", "JESSY LACHT JE UIT"],
     gluren: ["ZELFS BEERTJE (4) GLUURT BETER", "LISA ZIET ALLES", "BRUH."],
+    qwop: ["ZELFS BEERTJE (4) LOOPT VERDER", "BENEN VAN KWARK", "SKIP LEG DAY NIET"],
     bartender: ["ZELFS BEERTJE (4) MIXT BETER", "SHAKEN, NOT STIRRED", "DIT WAS GEEN KWARKSHAKE"]
   };
   let plaag = "";
@@ -746,6 +757,8 @@ window.Arcade = (function () {
     highscoresAan: () => !!highscoreInstelling(),
     topScores,
     laatsteScores,
+    scoreTekst,
+    FINISH_BASIS,
     vraagNaam,
     plaagTekst: () => plaag,
     confetti,

@@ -86,6 +86,15 @@ window.ARCADE_CONFIG = {
       pad: "games/gluren/index.html",
       kleur: "#ff3ea5",
       icoon: "📱"
+    },
+    {
+      id: "qwop",
+      naam: "JESSY QWOP",
+      beschrijving: "Help Jessy de 100 meter te lopen met Q, W, O en P",
+      pad: "games/qwop/index.html",
+      kleur: "#3ef0ff",
+      icoon: "🏃",
+      scoreSoort: "100m"  // snelste tijd wint; wie viel, telt in meters
     }
   ]
 };

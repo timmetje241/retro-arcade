@@ -27,7 +27,7 @@
     bord.innerHTML = `
       <h2><span>${spel.icoon}</span> ${spel.naam}</h2>
       <ol class="lijst"><li class="leeg">LADEN...</li></ol>
-      <p class="eigen">JOUW RECORD: ${record}</p>
+      <p class="eigen">JOUW RECORD: ${Arcade.scoreTekst(spel.id, record)}</p>
     `;
     borden.appendChild(bord);
     const lijst = bord.querySelector(".lijst");
@@ -43,7 +43,7 @@
           return;
         }
         lijst.innerHTML = scores
-          .map((s, i) => `<li><span class="plek">${i + 1}.</span><span class="naam">${veilig(s.naam)}</span><span class="punten">${s.score}</span></li>`)
+          .map((s, i) => `<li><span class="plek">${i + 1}.</span><span class="naam">${veilig(s.naam)}</span><span class="punten">${Arcade.scoreTekst(spel.id, s.score)}</span></li>`)
           .join("");
       })
       .catch(() => {
