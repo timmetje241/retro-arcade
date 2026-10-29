@@ -80,12 +80,12 @@ window.ARCADE_CONFIG = {
       geenRecord: true
     },
     {
-      id: "binnenkort-9",
-      naam: "???",
-      beschrijving: "Binnenkort...",
-      pad: null,
-      kleur: "#555",
-      icoon: "🔒"
+      id: "gluren",
+      naam: "STIEKEM GLUREN",
+      beschrijving: "Kijk stiekem dank memes zonder dat Lisa het ziet",
+      pad: "games/gluren/index.html",
+      kleur: "#ff3ea5",
+      icoon: "📱"
     }
   ]
 };

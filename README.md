@@ -37,6 +37,7 @@ Bij het eerste bezoek vult iedereen een naam in. Die wordt per apparaat onthoude
 | TV Meppen | 1 / 2 / 3 | Hamer, klomp of koe |
 | Kopbal (1 speler) | Pijltjes of A/D, W of omhoog, spatie | Lopen, springen, trappen |
 | Kopbal (2 spelers) | Links: A/D, W, spatie. Rechts: pijltjes, omhoog, omlaag | Lopen, springen, trappen |
+| Stiekem Gluren | Spatie / muis / vinger ingedrukt houden | Gluren |
 | Overal | M | Geluid aan/uit |
 | Menu | H | Highscores bekijken |
 
@@ -52,6 +53,8 @@ Bij het eerste bezoek vult iedereen een naam in. Die wordt per apparaat onthoude
 - **TV Meppen**: mep de ouwe beeldbuis met het koninklijk huis erop aan gruzelementen, met een hamer (1), klomp (2) of vallende koe (3). Geen score: gewoon meppen tot hij ontploft.
 
 - **Kopbal**: 1 tegen 1 voetballen met grote hoofden (zoals het oude "1 on 1 Soccer"). Tegen de computer of met z'n tweeën op één toetsenbord. Standaard Jessy tegen een willekeurig maatje; wie wil, maakt voor de aftrap een selfie en speelt met zijn eigen hoofd (de selfie blijft op het apparaat).
+
+- **Stiekem Gluren**: Jessy kijkt op de bank stiekem dank memes op zijn telefoon (spatie of muis ingedrukt houden). Laat los als Lisa achterdochtig wordt, want 3x betrapt = telefoon afgepakt. De meme-geluiden (vine boom, airhorn, hitmarker, sad trombone) zijn zelf nagemaakt en de browser zegt de memes hardop.
 
 ## Verrassingen
 
