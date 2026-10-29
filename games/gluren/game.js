@@ -8,6 +8,7 @@
   const RECORD_SLEUTEL = "gluren.record";
   const tekst = (...a) => Arcade.tekst(c, ...a);
   Arcade.schaalCanvas(canvas);
+  Arcade.geenMuziekHier(); // de Polish cow even uit, anders hoor je de memes niet
 
   const gezichten = Arcade.gezichten();
   const lisa = new Image();

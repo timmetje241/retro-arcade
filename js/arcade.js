@@ -101,8 +101,11 @@ window.Arcade = (function () {
     if (t > 0 && t < muziek.duration) muziek.currentTime = t;
   });
 
+  // Sommige spellen hebben hun eigen geluid en willen de muziek niet (zonder je instelling te veranderen)
+  let muziekHier = true;
+
   function speelMuziek() {
-    if (stil || muziekUit) muziek.pause();
+    if (stil || muziekUit || !muziekHier) muziek.pause();
     else muziek.play().catch(() => {}); // browsers spelen pas na een klik of toets
   }
 
@@ -138,7 +141,7 @@ window.Arcade = (function () {
         border: 3px solid #000; padding: 8px 12px; pointer-events: none; text-align: center; max-width: 90vw;`;
       document.body.appendChild(melding);
     }
-    melding.style.display = muziek.paused && !stil && !muziekUit ? "block" : "none";
+    melding.style.display = muziek.paused && !stil && !muziekUit && muziekHier ? "block" : "none";
   }
   muziek.addEventListener("playing", toonMelding);
   muziek.addEventListener("pause", toonMelding);
@@ -679,6 +682,7 @@ window.Arcade = (function () {
     isMuziekUit: () => muziekUit,
     muziekSpeelt: () => !muziek.paused,
     zetMuziekUit,
+    geenMuziekHier: () => { muziekHier = false; speelMuziek(); },
     gepauzeerd: staatStil,
     gebruikersnaam,
     vraagGebruikersnaam,
