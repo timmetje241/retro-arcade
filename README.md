@@ -38,6 +38,8 @@ Bij het eerste bezoek vult iedereen een naam in. Die wordt per apparaat onthoude
 | Kopbal (1 speler) | Pijltjes of A/D, W of omhoog, spatie | Lopen, springen, trappen |
 | Kopbal (2 spelers) | Links: A/D, W, spatie. Rechts: pijltjes, omhoog, omlaag | Lopen, springen, trappen |
 | Stiekem Gluren | Spatie / muis / vinger ingedrukt houden | Gluren |
+| Jessy's Bar | Muis / vinger: fles ingedrukt houden | Schenken (1 streepje = 1 deel) |
+| Jessy's Bar | Klik op glas, ijs en knoppen | Glas kiezen, ijs, shaken/roeren, garneren, serveren |
 | Overal | M | Geluid aan/uit |
 | Menu | H | Highscores bekijken |
 
@@ -55,6 +57,9 @@ Bij het eerste bezoek vult iedereen een naam in. Die wordt per apparaat onthoude
 - **Kopbal**: 1 tegen 1 voetballen met grote hoofden (zoals het oude "1 on 1 Soccer"). Tegen de computer of met z'n tweeën op één toetsenbord. Standaard Jessy tegen een willekeurig maatje; wie wil, maakt voor de aftrap een selfie en speelt met zijn eigen hoofd (de selfie blijft op het apparaat).
 
 - **Stiekem Gluren**: Jessy kijkt op de bank stiekem dank memes op zijn telefoon (spatie of muis ingedrukt houden). Laat los als Lisa achterdochtig wordt, want 3x betrapt = telefoon afgepakt. De meme-geluiden (vine boom, airhorn, hitmarker, sad trombone) zijn zelf nagemaakt en de browser zegt de memes hardop.
+
+- **Jessy's Bar**: naar het oude flashspel "Bartender: The Right Mix". Barman Jessy (lang hoofd, krulsnor) bestelt 8 cocktails van het krijtbord. Kies een glas, schenk de flessen in de mengbeker (fles ingedrukt houden, 1 streepje = 1 deel), doe er ijs bij, shake of roer, garneer en serveer. Jessy proeft en reageert: van een dansje bij een perfecte cocktail tot vuurspuwen (tabasco), ontploffen (melk met prik), spierballen (creatine), blauw worden, een boer laten of dronken achter de bar omvallen.
+  - **Score per cocktail**: precieze mix (max 60) + juiste glas, ijs, shaken/roeren en garnering (4 x 10) + snelheidsbonus (max 25) + bonus voor een reeks perfecte cocktails (+10, +20, ...). De hoogste totaalscore van de avond komt in de highscores.
 
 ## Verrassingen
 

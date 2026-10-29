@@ -516,7 +516,8 @@ window.Arcade = (function () {
     tapper: ["ZELFS BEERTJE (4) TAPT SNELLER", "MAM IS NIET ONDER DE INDRUK"],
     breakout: ["ZELFS BEERTJE (4) MIKT BETER", "DE KOE WON"],
     whack: ["ZELFS BEERTJE (4) MEPT HARDER", "JESSY LACHT JE UIT"],
-    gluren: ["ZELFS BEERTJE (4) GLUURT BETER", "LISA ZIET ALLES", "BRUH."]
+    gluren: ["ZELFS BEERTJE (4) GLUURT BETER", "LISA ZIET ALLES", "BRUH."],
+    bartender: ["ZELFS BEERTJE (4) MIXT BETER", "SHAKEN, NOT STIRRED", "DIT WAS GEEN KWARKSHAKE"]
   };
   let plaag = "";
 

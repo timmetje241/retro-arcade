@@ -86,6 +86,14 @@ window.ARCADE_CONFIG = {
       pad: "games/gluren/index.html",
       kleur: "#ff3ea5",
       icoon: "📱"
+    },
+    {
+      id: "bartender",
+      naam: "JESSY'S BAR",
+      beschrijving: "Mix cocktails voor barman Jessy (met snor) en kijk hoe hij reageert",
+      pad: "games/bartender/index.html",
+      kleur: "#e53935",
+      icoon: "🍸"
     }
   ]
 };
