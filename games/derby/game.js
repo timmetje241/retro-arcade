@@ -18,7 +18,7 @@
   const maten = [1, 2, 3, 4, 5, 6, 7].sort(() => Math.random() - 0.5).slice(0, 2).map((n) => plaatje(`maten/maat-${n}.png`));
 
   // --- De baan ---
-  const LENGTE = 1000;             // eenheden; op de bordjes is dat 2000 meter
+  const LENGTE = 3000;             // eenheden = meters
   const SCHAAL = 6;                // pixels per eenheid
   const BAAN_Y = 186;              // bovenste baan
   const BAAN_H = 44;
@@ -32,7 +32,7 @@
     {
       naam: "JESSY 33", jp: "ジェシー", kleur: "#ff3ea5", vacht: "#8d5524", gezicht: jessy,
       tekst: ["DE JARIGE (31 OKTOBER)", "FEESTJE = TURBO"],
-      snel: 35.1, acc: 1.6, moe: 0.12, uithoud: 0.6, chaos: 0.25,
+      snel: 34.94, acc: 1.6, moe: 0.12, uithoud: 0.6, chaos: 0.25,
       streek(p, race, rng, dt) {
         if (rng() < 0.03 * dt) actie(p, "turbo", 1.6, "🎉", "FEESTJE! JESSY GAAT LOS", "パーティー！");
       }
@@ -40,7 +40,7 @@
     {
       naam: "LISA", jp: "リサ", kleur: "#5c6bc0", vacht: "#3e2723", gezicht: plaatje("lisa.png"),
       tekst: ["ALTIJD STABIEL", "KIJKT SOMS OM NAAR JESSY"],
-      snel: 36.3, acc: 1.8, moe: 0.08, uithoud: 0.7, chaos: 0.08,
+      snel: 36.6, acc: 1.8, moe: 0.08, uithoud: 0.7, chaos: 0.08,
       streek(p, race, rng, dt) {
         if (rng() < 0.03 * dt) actie(p, "stop", 0.7, "👀", "LISA KIJKT OM: ZIT JESSY WEER OP ZIJN TELEFOON?", "リサが振り向いた！");
       }
@@ -48,7 +48,7 @@
     {
       naam: "POOLSE KOE", jp: "ポーランドのウシ", kleur: "#fafafa", koe: true, icoon: "🐄",
       tekst: ["GEEN PAARD. WEL SNEL?", "BOE! OF KOEIENRAKET"],
-      snel: 35.1, acc: 1.2, moe: 0.05, uithoud: 0.5, chaos: 0.45,
+      snel: 36.16, acc: 1.2, moe: 0.05, uithoud: 0.5, chaos: 0.45,
       streek(p, race, rng, dt) {
         if (rng() < 0.07 * dt) actie(p, "stop", 0.8, "💬", "DE KOE ZEGT BOE EN STAAT STIL", "モー！");
         else if (rng() < 0.035 * dt) actie(p, "turbo", 2.5, "🚀", "KOEIENRAKET!!!", "ロケットウシ！");
@@ -57,13 +57,13 @@
     {
       naam: "KWARK KAREL", jp: "カレル", kleur: "#3ef0ff", vacht: "#c68e4e", gezicht: maten[0],
       tekst: ["TRAAG BEGIN, MAAR", "STERKE EINDSPURT"],
-      snel: 35.1, acc: 1.1, moe: -0.3, uithoud: 0.5, chaos: 0.15,
+      snel: 34.32, acc: 1.1, moe: -0.3, uithoud: 0.5, chaos: 0.15,
       streek() {}
     },
     {
       naam: "BIERBUIK BERT", jp: "ベルト", kleur: "#f2a900", vacht: "#6d4c41", gezicht: maten[1],
       tekst: ["KOMT LANGZAAM OP GANG", "BOERT ZICH NAAR VOREN"],
-      snel: 35.45, acc: 0.7, moe: 0.1, uithoud: 0.6, chaos: 0.2,
+      snel: 34.78, acc: 0.7, moe: 0.1, uithoud: 0.6, chaos: 0.2,
       streek(p, race, rng, dt) {
         if (rng() < 0.05 * dt) actie(p, "turbo", 1.2, "💨", "BERT LAAT EEN BOER EN SCHIET NAAR VOREN", "ゲップ！");
       }
@@ -71,7 +71,7 @@
     {
       naam: "VIBECODER 3000", jp: "バイブコーダー", kleur: "#5fd35f", vacht: "#455a64", icoon: "🤖",
       tekst: ["ONVOORSPELBAAR", "GLITCHT DOOR DE BAAN"],
-      snel: 34.35, acc: 1.5, moe: 0.1, uithoud: 0.6, chaos: 0.3,
+      snel: 34.69, acc: 1.5, moe: 0.1, uithoud: 0.6, chaos: 0.3,
       streek(p, race, rng, dt) {
         if (rng() < 0.08 * dt) {
           const sprong = (rng() - 0.42) * 90;
@@ -84,7 +84,7 @@
     {
       naam: "BEERTJE (4)", jp: "ベールチェ", kleur: "#ffb74d", vacht: "#ffe0b2", icoon: "🧸", klein: true,
       tekst: ["PONY. SUPERSNEL WEG", "PLUKT GRAAG BLOEMETJES"],
-      snel: 36.95, acc: 3, moe: 0.15, uithoud: 0.4, chaos: 0.3,
+      snel: 37.88, acc: 3, moe: 0.15, uithoud: 0.4, chaos: 0.3,
       streek(p, race, rng, dt) {
         if (rng() < 0.045 * dt) actie(p, "stop", 1.1, "🌼", "BEERTJE STOPT OM EEN BLOEMETJE TE PLUKKEN", "お花！");
       }
@@ -92,7 +92,7 @@
     {
       naam: "ZIJNE MAJESTEIT", jp: "陛下", kleur: "#b06cff", vacht: "#fafafa", icoon: "🤴",
       tekst: ["SNELLE START, SNEL MOE", "ZWAAIT NAAR HET VOLK"],
-      snel: 39.6, acc: 1.5, moe: 0.42, uithoud: 0.45, chaos: 0.15,
+      snel: 40.93, acc: 1.5, moe: 0.42, uithoud: 0.45, chaos: 0.15,
       streek(p, race, rng, dt) {
         if (rng() < 0.05 * dt) actie(p, "stop", 1, "👋", "ZIJNE MAJESTEIT ZWAAIT NAAR HET VOLK. NIEMAND ZWAAIT TERUG", "陛下が手を振る");
         else if (rng() < 0.012 * dt) actie(p, "slip", 2, "💥", "DE MAJESTEIT VALT VAN ZIJN TROON!", "落ちた！");
@@ -170,8 +170,9 @@
       events: []
     };
     const soorten = [...EVENTS].sort(() => rng() - 0.5);
-    const aantal = 3 + Math.floor(rng() * 2);
-    for (let i = 0; i < aantal; i++) race.events.push({ tijd: 4 + i * 5.5 + rng() * 3, soort: soorten[i] });
+    // Elk soort gebeurtenis hooguit één keer, verspreid over de hele race (ruim 80 seconden)
+    const aantal = 7 + Math.floor(rng() * 3);
+    for (let i = 0; i < aantal; i++) race.events.push({ tijd: 5 + i * (72 / aantal) + rng() * 4, soort: soorten[i % soorten.length] });
     return race;
   }
 
@@ -223,18 +224,22 @@
     }
   }
 
-  // Kansen uitrekenen door de race 400 keer stiekem te laten lopen
+  // Kansen uitrekenen door de race 250 keer stiekem te laten lopen
+  const MIN_ODDS = 1.5;
+  const MAX_ODDS = 3;
   const KANSEN = (function () {
     const winst = new Array(8).fill(0);
-    const N = 400;
+    const N = 250;
     for (let n = 0; n < N; n++) {
       const race = maakRace(Math.random, null);
-      while (!race.volgorde.length && race.t < 90) stapRace(race, 0.05, Math.random);
+      while (!race.volgorde.length && race.t < 300) stapRace(race, 0.1, Math.random);
       winst[race.volgorde[0] ?? 0]++;
     }
     huidigeRace = null;
-    // Odds zoals bij de bookmaker, afgerond op halven
-    return winst.map((w) => Math.max(1.5, Math.min(20, Math.round((0.85 * N / Math.max(1, w)) * 2) / 2)));
+    // Eerlijke odds omrekenen naar 1,5x (favoriet) tot 3x (outsider), zodat niemand ineens 20 slokken uitdeelt
+    const eerlijk = winst.map((w) => N / Math.max(1, w));
+    const laag = Math.min(...eerlijk), hoog = Math.max(...eerlijk);
+    return eerlijk.map((o) => Math.round((MIN_ODDS + (MAX_ODDS - MIN_ODDS) * (o - laag) / Math.max(0.001, hoog - laag)) * 10) / 10);
   })();
 
   // --- Spelers, met een eigen foto die alleen op dit apparaat blijft ---
@@ -318,6 +323,52 @@
     });
   }
 
+  // --- Japanse racemuziek: taiko, een shamisen-achtig tokkeltje en een melodie in de Japanse yo-toonladder ---
+  Arcade.geenMuziekHier(); // de Polish cow even uit, anders loopt het door elkaar
+  const YO = [293.66, 329.63, 392.0, 440.0, 493.88, 587.33, 659.25, 783.99, 880.0];
+  const TEL = 60 / 160 / 2;                // achtste noten op 160 bpm
+  // 32 achtsten (4 maten), -1 = rust
+  const MELODIE = [5, -1, 5, 6, 7, -1, 6, 5, 4, -1, 5, -1, 3, -1, -1, -1,
+    5, -1, 5, 6, 7, -1, 8, 7, 6, 5, 4, -1, 5, -1, -1, -1];
+  const TWEEDE = [7, 8, 7, 6, 5, -1, 4, 5, 6, -1, 5, 4, 3, -1, 2, -1,
+    3, 4, 5, -1, 6, 5, 4, 3, 2, -1, 3, -1, 0, -1, -1, -1];
+  const BAS = [0, 0, 3, 0, 2, 2, 4, 2];
+  let muziekTel = 0, muziekKlok = 0;
+
+  function muziekAan() {
+    return toestand === "race" && !Arcade.isStil() && !Arcade.isMuziekUit() && !document.hidden;
+  }
+
+  function speelTel(tel, wacht) {
+    const stuk = Math.floor(tel / 32) % 2 ? TWEEDE : MELODIE;
+    const noot = stuk[tel % 32];
+    const sneller = race && race.volgorde.length === 0 && race.paarden.some((p) => p.x > LENGTE * 0.85);
+    // Melodie: fluit (sinus) met een felle shamisen-tokkel eronder
+    if (noot >= 0) {
+      Arcade.toon({ type: "triangle", van: YO[noot] * 2, duur: TEL * 1.6, volume: 0.13, vertraging: wacht });
+      Arcade.toon({ type: "square", van: YO[noot], naar: YO[noot] * 0.98, duur: 0.07, volume: 0.07, vertraging: wacht, filter: 2200 });
+    }
+    // Bas op de tellen
+    if (tel % 2 === 0) Arcade.toon({ type: "sawtooth", van: YO[BAS[(tel / 2) % 8]] / 2, duur: TEL * 1.2, volume: 0.07, vertraging: wacht, filter: 600 });
+    // Taiko: dong op 1 en 3, tikjes ertussen; in de laatste rechte lijn dubbel zo druk
+    if (tel % 8 === 0 || tel % 8 === 3 || (sneller && tel % 2 === 0)) {
+      Arcade.toon({ type: "sine", van: 120, naar: 50, duur: 0.25, volume: 0.3, vertraging: wacht });
+    } else if (tel % 4 === 2) {
+      Arcade.toon({ type: "square", van: 900, naar: 600, duur: 0.03, volume: 0.05, vertraging: wacht });
+    }
+  }
+
+  function muziek(dt) {
+    if (!muziekAan()) { muziekKlok = 0; return; }
+    muziekKlok -= dt;
+    // Een klein stukje vooruit inplannen, zodat het strak in de maat blijft
+    while (muziekKlok < 0.15) {
+      speelTel(muziekTel, Math.max(0, muziekKlok));
+      muziekTel++;
+      muziekKlok += TEL;
+    }
+  }
+
   function hoefjes() {
     Arcade.ruis({ duur: 0.03, volume: 0.03 });
   }
@@ -346,7 +397,7 @@
     leiderVorige = -1;
     laatsteRechte = false;
     afgelopenSinds = 0;
-    banner = { nl: "DE JESSY CUP OVER 2000 METER. DE PAARDEN STAAN KLAAR...", jp: "まもなくスタートです", t: 0 };
+    banner = { nl: "DE JESSY CUP OVER 3000 METER. DE PAARDEN STAAN KLAAR...", jp: "まもなくスタートです", t: 0 };
     fanfare();
     setTimeout(() => zegJapans("各馬、ゲートイン完了"), 1600);
   }
@@ -395,6 +446,8 @@
       if (aftellen <= 0) {
         Arcade.toon({ type: "square", van: 880, duur: 0.4, volume: 0.12 });
         melding("EN ZE ZIJN VERTROKKEN!", "スタートしました！");
+        muziekTel = 0;
+        muziekKlok = 0.3;
       }
       return;
     }
@@ -406,6 +459,7 @@
     } else tijdSchaal = race.volgorde.length ? 1 : Math.min(1, tijdSchaal + dt);
     const stap = dt * tijdSchaal;
     stapRace(race, stap, rng);
+    muziek(dt);
 
     // Commentaar bij een nieuwe leider (niet te vaak)
     const leider = [...race.paarden].sort((a, b) => b.x - a.x)[0];
@@ -414,7 +468,11 @@
       laatsteCommentaar = tijd;
       if (!banner || banner.t > 1.5) melding(`${leider.k.naam} NEEMT DE LEIDING!`, `トップは${leider.k.jp}！`);
     }
-    if (!laatsteRechte && leider.x > LENGTE * 0.75) {
+    if (!race.halverwege && leider.x > LENGTE * 0.5) {
+      race.halverwege = true;
+      melding(`HALVERWEGE! ${leider.k.naam} LIGT VOOROP`, "折り返し地点です！");
+    }
+    if (!laatsteRechte && leider.x > LENGTE * 0.85) {
       laatsteRechte = true;
       melding("DE LAATSTE RECHTE LIJN! WIE HOUDT HET VOL?", "最後の直線です！");
     }
@@ -824,7 +882,7 @@
       c.fillRect(0, y, W, 4);
     });
     // Afstandspalen (om de 100 eenheden = 200 meter), rood-wit
-    for (let m = 0; m <= LENGTE; m += 100) {
+    for (let m = 0; m <= LENGTE; m += 200) {
       const x = m * SCHAAL - camX;
       if (x < -60 || x > W + 60) continue;
       if (m === LENGTE) continue;
@@ -834,7 +892,7 @@
         c.fillStyle = (y / 8) % 2 ? "#e53935" : "#fff";
         c.fillRect(x - 3, y, 6, 8);
       }
-      const rest = (LENGTE - m) * 2;
+      const rest = LENGTE - m;
       c.fillStyle = "#fff";
       c.fillRect(x - 26, 128, 52, 14);
       c.font = `7px ${Arcade.FONT}`;
