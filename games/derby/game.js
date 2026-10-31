@@ -90,7 +90,7 @@
       }
     },
     {
-      naam: "ZIJNE MAJESTEIT", jp: "陛下", kleur: "#b06cff", vacht: "#fafafa", icoon: "👑",
+      naam: "ZIJNE MAJESTEIT", jp: "陛下", kleur: "#b06cff", vacht: "#fafafa", icoon: "🤴",
       tekst: ["SNELLE START, SNEL MOE", "ZWAAIT NAAR HET VOLK"],
       snel: 39.6, acc: 1.5, moe: 0.42, uithoud: 0.45, chaos: 0.15,
       streek(p, race, rng, dt) {
@@ -237,17 +237,59 @@
     return winst.map((w) => Math.max(1.5, Math.min(20, Math.round((0.85 * N / Math.max(1, w)) * 2) / 2)));
   })();
 
-  // --- Spelers ---
+  // --- Spelers, met een eigen foto die alleen op dit apparaat blijft ---
+  function nieuweSpeler(naam, foto = null) {
+    const s = { naam, foto: null, img: null, paard: Math.floor(Math.random() * 8), inzet: 2, gedronken: 0, uitgedeeld: 0 };
+    zetFoto(s, foto);
+    return s;
+  }
+  function zetFoto(s, foto) {
+    s.foto = foto;
+    s.img = null;
+    if (foto) {
+      s.img = new Image();
+      s.img.src = foto;
+    }
+  }
   let spelers = Arcade.lees(SPELERS_SLEUTEL, null);
   if (!Array.isArray(spelers) || !spelers.length) spelers = [Arcade.gebruikersnaam() || "SPELER 1"];
-  spelers = spelers.slice(0, MAX_SPELERS).map((naam) => nieuweSpeler(naam));
+  // Eerder werden alleen namen bewaard, nu naam + foto
+  spelers = spelers.slice(0, MAX_SPELERS).map((x) => (typeof x === "string" ? nieuweSpeler(x) : nieuweSpeler(x.naam, x.foto)));
 
-  function nieuweSpeler(naam) {
-    return { naam, paard: Math.floor(Math.random() * 8), inzet: 2, gedronken: 0, uitgedeeld: 0 };
-  }
   function bewaarSpelers() {
-    Arcade.bewaar(SPELERS_SLEUTEL, spelers.map((s) => s.naam));
+    Arcade.bewaar(SPELERS_SLEUTEL, spelers.map((s) => ({ naam: s.naam, foto: s.foto })));
   }
+
+  // Foto kiezen of maken (op een telefoon met de camera), verkleind tot een vierkantje van 128 pixels
+  const fotoKiezer = document.createElement("input");
+  fotoKiezer.type = "file";
+  fotoKiezer.accept = "image/*";
+  fotoKiezer.style.display = "none";
+  document.body.appendChild(fotoKiezer);
+  let fotoVoor = null;
+  function kiesFoto(s) {
+    fotoVoor = s;
+    fotoKiezer.value = "";
+    fotoKiezer.click();
+  }
+  fotoKiezer.addEventListener("change", () => {
+    const bestand = fotoKiezer.files && fotoKiezer.files[0];
+    const s = fotoVoor;
+    if (!bestand || !s) return;
+    const adres = URL.createObjectURL(bestand);
+    const img = new Image();
+    img.onload = () => {
+      const maat = 128;
+      const doek = document.createElement("canvas");
+      doek.width = doek.height = maat;
+      const kant = Math.min(img.width, img.height);
+      doek.getContext("2d").drawImage(img, (img.width - kant) / 2, (img.height - kant) / 2, kant, kant, 0, 0, maat, maat);
+      URL.revokeObjectURL(adres);
+      zetFoto(s, doek.toDataURL("image/jpeg", 0.8));
+      bewaarSpelers();
+    };
+    img.src = adres;
+  });
   function vraagNaam(huidig) {
     const naam = window.prompt("Naam van de speler (leeg = verwijderen):", huidig || "");
     if (naam === null) return null;
@@ -284,7 +326,7 @@
   let toestand = "inzet";   // inzet, race, uitslag
   let race = null, rng = Math.random, aftellen = 0, tijd = 0, camX = 0, tijdSchaal = 1, fotofinish = false;
   let banner = null, uitslag = null, zones = [], muis = { x: -1, y: -1 }, leiderVorige = -1, laatsteCommentaar = 0;
-  let regenDruppels = [], hoefKlok = 0, laatsteRechte = false, afgelopenSinds = 0;
+  let regenDruppels = [], hoefKlok = 0, laatsteRechte = false, afgelopenSinds = 0, stof = [];
 
   function melding(nl, jp, paard) {
     banner = { nl, jp, t: 0 };
@@ -295,6 +337,7 @@
   function startRace() {
     bewaarSpelers();
     race = maakRace(rng, melding);
+    stof = [];
     toestand = "race";
     aftellen = 3.2;
     camX = -100;
@@ -392,6 +435,14 @@
     const doel = Math.max(-100, Math.min(LENGTE * SCHAAL - W + 160, leider.x * SCHAAL - W * 0.62));
     camX += (doel - camX) * Math.min(1, dt * 4);
     race.paarden.forEach((p) => { p.flits = Math.max(0, (p.flits || 0) - dt); });
+    // Stofwolkjes achter rennende paarden
+    race.paarden.forEach((p) => {
+      if (p.v > 12 && Math.random() < dt * 14) {
+        stof.push({ x: p.x * SCHAAL + 10, y: BAAN_Y + p.i * BAAN_H + 36, t: 0, max: 0.5 + Math.random() * 0.4, r: 3 + Math.random() * 3 });
+      }
+    });
+    stof.forEach((d) => { d.t += dt; d.y -= dt * 8; });
+    stof = stof.filter((d) => d.t < d.max);
     // Regen
     if (race.effect.regen > 0) for (let i = 0; i < 6; i++) regenDruppels.push({ x: Math.random() * W, y: -10, v: 600 + Math.random() * 300 });
     regenDruppels.forEach((d) => { d.y += d.v * dt; d.x -= 80 * dt; });
@@ -407,10 +458,16 @@
     e.preventDefault();
     const p = punt(e);
     const zone = zones.find((z) => p.x >= z.x && p.x <= z.x + z.w && p.y >= z.y && p.y <= z.y + z.h);
-    if (zone) {
+    if (zone && !zone.bijKlik) {
       zone.doe();
       Arcade.toon({ type: "square", van: 700, naar: 900, duur: 0.05, volume: 0.05 });
     }
+  });
+  // Een fotovenster mag de browser alleen openen bij een echte klik
+  canvas.addEventListener("click", (e) => {
+    const p = punt(e);
+    const zone = zones.find((z) => z.bijKlik && p.x >= z.x && p.x <= z.x + z.w && p.y >= z.y && p.y <= z.y + z.h);
+    if (zone) zone.doe();
   });
   canvas.addEventListener("pointermove", (e) => {
     muis = punt(e);
@@ -426,18 +483,44 @@
   });
 
   // --- Tekenen: algemene hulpjes ---
+  // Kleur lichter (f > 0) of donkerder (f < 0) maken
+  function tint(hex, f) {
+    const n = parseInt(hex.slice(1), 16);
+    const doel = f > 0 ? 255 : 0, k = Math.abs(f);
+    const kanaal = (v) => Math.round(v + (doel - v) * k);
+    return `rgb(${kanaal((n >> 16) & 255)},${kanaal((n >> 8) & 255)},${kanaal(n & 255)})`;
+  }
+
   function knop(x, y, w, h, woord, doe, opties = {}) {
     const over = muis.x >= x && muis.x <= x + w && muis.y >= y && muis.y <= y + h;
-    c.fillStyle = "#111";
+    const kleur = over ? "#ff3ea5" : (opties.kleur || "#37474f");
+    c.fillStyle = "rgba(0, 0, 0, 0.5)";
     c.beginPath();
-    c.roundRect(x, y + 3, w, h, 6);
+    c.roundRect(x, y + 3, w, h, 7);
     c.fill();
-    c.fillStyle = over ? "#ff3ea5" : (opties.kleur || "#37474f");
+    const verloop = c.createLinearGradient(0, y, 0, y + h);
+    verloop.addColorStop(0, tint(kleur, 0.25));
+    verloop.addColorStop(1, tint(kleur, -0.2));
+    c.fillStyle = verloop;
     c.beginPath();
-    c.roundRect(x, y, w, h, 6);
+    c.roundRect(x, y, w, h, 7);
     c.fill();
+    c.fillStyle = "rgba(255, 255, 255, 0.18)";
+    c.fillRect(x + 4, y + 3, w - 8, Math.max(2, h * 0.25));
     tekst(woord, x + w / 2, y + h / 2 + 1, opties.grootte || 10, "#fff");
-    zones.push({ x, y, w, h, doe });
+    zones.push({ x, y, w, h, doe, bijKlik: opties.bijKlik });
+  }
+
+  // Rond plaatje zonder feesthoedje (dat krijgt alleen Jessy)
+  function rondPlaatje(img, x, y, r) {
+    if (!img || !img.complete || !img.naturalWidth) return false;
+    c.save();
+    c.beginPath();
+    c.arc(x, y, r, 0, Math.PI * 2);
+    c.clip();
+    c.drawImage(img, x - r, y - r, r * 2, r * 2);
+    c.restore();
+    return true;
   }
 
   function gezicht(k, x, y, r) {
@@ -445,7 +528,8 @@
     c.beginPath();
     c.arc(x, y, r + 2, 0, Math.PI * 2);
     c.fill();
-    if (k.gezicht) Arcade.plaatje(c, k.gezicht, x, y, r);
+    if (k.gezicht === jessy) Arcade.plaatje(c, k.gezicht, x, y, r);
+    else if (k.gezicht) rondPlaatje(k.gezicht, x, y, r);
     else {
       c.fillStyle = k.kleur;
       c.beginPath();
@@ -458,50 +542,107 @@
     }
   }
 
-  // --- Inzetscherm ---
-  function tekenInzet() {
+  // De foto van een speler, of een gekleurd rondje met de eerste letter
+  const SPELER_KLEUREN = ["#ff3ea5", "#3ef0ff", "#ffe14d", "#5fd35f", "#ff9800", "#b06cff", "#ff5a5a", "#4fc3f7"];
+  function spelerFoto(s, x, y, r) {
+    c.fillStyle = "#fff";
+    c.beginPath();
+    c.arc(x, y, r + 2, 0, Math.PI * 2);
+    c.fill();
+    if (!rondPlaatje(s.img, x, y, r)) {
+      c.fillStyle = SPELER_KLEUREN[spelers.indexOf(s) % SPELER_KLEUREN.length] || "#888";
+      c.beginPath();
+      c.arc(x, y, r, 0, Math.PI * 2);
+      c.fill();
+      tekst(s.naam.slice(0, 1) || "?", x, y + 1, Math.max(7, Math.round(r * 0.9)), "#fff");
+    }
+  }
+
+  // Stadion bij avond, voor het inzet- en uitslagscherm
+  function tekenAvond() {
     const lucht = c.createLinearGradient(0, 0, 0, H);
-    lucht.addColorStop(0, "#1b2a4a");
+    lucht.addColorStop(0, "#0d1b3d");
+    lucht.addColorStop(0.6, "#1c2f5e");
     lucht.addColorStop(1, "#0b0b1e");
     c.fillStyle = lucht;
     c.fillRect(0, 0, W, H);
-    tekst("SLOKKEN DERBY", W / 2, 30, 26, "#ffe14d");
-    tekst("DE JESSY CUP  -  ZET IN MET SLOKKEN BIER", W / 2, 60, 9, "#ff9ec7");
-
-    // De 8 deelnemers met hun odds
-    KARAKTERS.forEach((k, i) => {
-      const x = 16 + (i % 2) * 256, y = 78 + Math.floor(i / 2) * 112;
-      const gekozen = spelers.filter((s) => s.paard === i);
-      c.fillStyle = "rgba(255, 255, 255, 0.07)";
+    // Schijnwerpers
+    [[120, -40], [W - 120, -40]].forEach(([lx, ly], i) => {
+      const straal = c.createRadialGradient(lx, ly, 10, lx, ly, 520);
+      straal.addColorStop(0, "rgba(255, 245, 200, 0.22)");
+      straal.addColorStop(1, "rgba(255, 245, 200, 0)");
+      c.fillStyle = straal;
       c.beginPath();
-      c.roundRect(x, y, 248, 104, 8);
+      c.moveTo(lx, ly);
+      c.lineTo(lx + (i ? -520 : 120), H);
+      c.lineTo(lx + (i ? -120 : 520), H);
       c.fill();
-      c.fillStyle = k.kleur;
-      c.fillRect(x, y, 6, 104);
-      gezicht(k, x + 36, y + 36, 22);
-      tekst((i + 1) + ". " + k.naam, x + 66, y + 18, 8, "#fff", "left");
-      tekst(k.tekst[0], x + 66, y + 40, 6, "#bbb", "left");
-      tekst(k.tekst[1], x + 66, y + 54, 6, "#bbb", "left");
-      tekst(KANSEN[i].toFixed(1) + "X", x + 238, y + 86, 13, "#ffe14d", "right");
-      tekst(gekozen.map((s) => s.naam).join(" ").slice(0, 22), x + 14, y + 88, 6, k.kleur === "#fafafa" ? "#ddd" : k.kleur, "left");
+    });
+    // Sterretjes
+    c.fillStyle = "rgba(255, 255, 255, 0.6)";
+    for (let i = 0; i < 40; i++) {
+      const x = (i * 197) % W, y = (i * 83) % 200;
+      if ((i + Math.floor(tijd * 2)) % 9) c.fillRect(x, y, 2, 2);
+    }
+  }
+
+  function kaart(x, y, w, h, kleur, oplichten) {
+    c.fillStyle = "rgba(0, 0, 0, 0.4)";
+    c.beginPath();
+    c.roundRect(x + 2, y + 4, w, h, 10);
+    c.fill();
+    const verloop = c.createLinearGradient(x, y, x + w, y + h);
+    verloop.addColorStop(0, tint(kleur, -0.55));
+    verloop.addColorStop(1, "rgba(20, 24, 48, 0.95)");
+    c.fillStyle = verloop;
+    c.beginPath();
+    c.roundRect(x, y, w, h, 10);
+    c.fill();
+    c.strokeStyle = oplichten ? kleur : "rgba(255, 255, 255, 0.12)";
+    c.lineWidth = oplichten ? 3 : 1;
+    c.stroke();
+  }
+
+  // --- Inzetscherm ---
+  function tekenInzet() {
+    tekenAvond();
+    tekst("SLOKKEN DERBY", W / 2, 32, 28, "#ffe14d");
+    tekst("DE JESSY CUP  -  ZET IN MET SLOKKEN BIER", W / 2, 62, 9, "#ff9ec7");
+
+    // De 8 deelnemers met hun odds en wie erop wedt
+    KARAKTERS.forEach((k, i) => {
+      const x = 16 + (i % 2) * 256, y = 80 + Math.floor(i / 2) * 112;
+      const gekozen = spelers.filter((s) => s.paard === i);
+      kaart(x, y, 246, 102, k.kleur, gekozen.length > 0);
+      gezicht(k, x + 36, y + 36, 24);
+      tekst((i + 1) + ". " + k.naam, x + 68, y + 18, 8, "#fff", "left");
+      tekst(k.tekst[0], x + 68, y + 40, 6, "#c8c8d8", "left");
+      tekst(k.tekst[1], x + 68, y + 54, 6, "#c8c8d8", "left");
+      tekst(KANSEN[i].toFixed(1) + "X", x + 236, y + 84, 14, "#ffe14d", "right");
+      gekozen.forEach((s, j) => spelerFoto(s, x + 20 + j * 20, y + 84, 8));
     });
 
     // Spelers
     const px = 536;
-    tekst("SPELERS", px + 8, 92, 10, "#3ef0ff", "left");
-    tekst("PAARD", px + 236, 92, 7, "#888");
-    tekst("SLOKKEN", px + 352, 92, 7, "#888");
+    tekst("SPELERS", px + 8, 94, 10, "#3ef0ff", "left");
+    tekst("PAARD", px + 236, 94, 7, "#9aa");
+    tekst("SLOKKEN", px + 352, 94, 7, "#9aa");
     spelers.forEach((s, i) => {
       const y = 108 + i * 50;
       const k = KARAKTERS[s.paard];
-      c.fillStyle = "rgba(255, 255, 255, 0.06)";
-      c.beginPath();
-      c.roundRect(px, y, 410, 44, 6);
-      c.fill();
+      kaart(px, y, 410, 44, k.kleur, false);
+      // Foto: klik om er een te kiezen of te maken
+      spelerFoto(s, px + 24, y + 22, 16);
+      if (!s.foto) {
+        c.font = "12px serif";
+        c.textAlign = "center";
+        c.fillText("📷", px + 36, y + 34);
+      }
+      zones.push({ x: px, y, w: 44, h: 44, doe: () => kiesFoto(s), bijKlik: true });
       // Naam: klik om te wijzigen of te verwijderen
-      tekst(s.naam, px + 10, y + 16, 9, "#fff", "left");
-      tekst(`DRONK ${s.gedronken}  DEELDE ${s.uitgedeeld}`, px + 10, y + 33, 6, "#888", "left");
-      zones.push({ x: px, y, w: 160, h: 44, doe: () => {
+      tekst(s.naam, px + 50, y + 16, 9, "#fff", "left");
+      tekst(`DRONK ${s.gedronken}  DEELDE ${s.uitgedeeld}`, px + 50, y + 33, 6, "#9aa", "left");
+      zones.push({ x: px + 46, y, w: 116, h: 44, doe: () => {
         const naam = vraagNaam(s.naam);
         if (naam === null) return;
         if (!naam) { if (spelers.length > 1) spelers.splice(spelers.indexOf(s), 1); }
@@ -525,44 +666,102 @@
 
     tekst("WINNEND PAARD: DEEL INZET X ODDS UIT", 20, 538, 7, "#5fd35f", "left");
     tekst("2E PLAATS: GERED  -  REST: DRINK JE INZET", 20, 556, 7, "#ff9ec7", "left");
-    tekst("KLIK OP EEN NAAM OM HEM TE WIJZIGEN (LEEG = WEG)  -  WATER MAG OOK", 20, 574, 6, "#888", "left");
+    tekst("KLIK OP JE FOTO OF NAAM OM ZE TE WIJZIGEN  -  WATER MAG OOK", 20, 574, 6, "#9aa", "left");
     knop(700, 530, 240, 54, "START RACE!", startRace, { kleur: "#c62828", grootte: 14 });
   }
 
-  // --- Race ---
-  function tekenTribune() {
-    c.fillStyle = "#87ceeb";
+  // --- Race: lucht, tribune en baan ---
+  const WOLKEN = [[80, 30, 1], [330, 55, 0.7], [560, 25, 1.2], [790, 50, 0.8], [1020, 35, 1]];
+
+  function tekenLucht() {
+    const lucht = c.createLinearGradient(0, 0, 0, 150);
+    lucht.addColorStop(0, "#3d9be9");
+    lucht.addColorStop(1, "#c4e8ff");
+    c.fillStyle = lucht;
     c.fillRect(0, 0, W, 150);
-    // Bergen (Fuji!) ver weg
-    const berg = -camX * 0.05;
-    c.fillStyle = "#8aa2c8";
+    // Zon
+    const zon = c.createRadialGradient(880, 34, 4, 880, 34, 70);
+    zon.addColorStop(0, "rgba(255, 250, 210, 1)");
+    zon.addColorStop(0.3, "rgba(255, 240, 160, 0.8)");
+    zon.addColorStop(1, "rgba(255, 240, 160, 0)");
+    c.fillStyle = zon;
+    c.fillRect(800, 0, 160, 110);
+    // Wolken drijven langzaam voorbij
+    WOLKEN.forEach(([bx, by, s]) => {
+      const x = ((bx - camX * 0.03 + tijd * 6) % (W + 240) + W + 240) % (W + 240) - 120;
+      c.fillStyle = "rgba(255, 255, 255, 0.9)";
+      [[0, 0, 22], [20, -8, 18], [40, 0, 20], [18, 6, 18]].forEach(([dx, dy, r]) => {
+        c.beginPath();
+        c.arc(x + dx * s, by + dy * s, r * s, 0, Math.PI * 2);
+        c.fill();
+      });
+    });
+    // De Fuji in de verte
+    const berg = 520 - camX * 0.02;
+    const bergKleur = c.createLinearGradient(0, 40, 0, 150);
+    bergKleur.addColorStop(0, "#7d93c4");
+    bergKleur.addColorStop(1, "#9fb4dc");
+    c.fillStyle = bergKleur;
     c.beginPath();
-    c.moveTo(berg + 500, 150); c.lineTo(berg + 700, 40); c.lineTo(berg + 900, 150);
+    c.moveTo(berg - 200, 150); c.quadraticCurveTo(berg - 40, 60, berg - 18, 44); c.lineTo(berg + 18, 44); c.quadraticCurveTo(berg + 40, 60, berg + 200, 150);
     c.fill();
     c.fillStyle = "#fff";
     c.beginPath();
-    c.moveTo(berg + 663, 62); c.lineTo(berg + 700, 40); c.lineTo(berg + 737, 62); c.lineTo(berg + 715, 58); c.lineTo(berg + 700, 66); c.lineTo(berg + 685, 58);
+    c.moveTo(berg - 38, 66); c.lineTo(berg - 18, 44); c.lineTo(berg + 18, 44); c.lineTo(berg + 38, 66);
+    c.lineTo(berg + 22, 62); c.lineTo(berg + 10, 70); c.lineTo(berg - 4, 60); c.lineTo(berg - 18, 68);
     c.fill();
-    // Tribune met publiek
+    // Bomenrij
+    const bomen = -camX * 0.25;
+    for (let i = Math.floor(-bomen / 46) - 1; i < Math.floor((W - bomen) / 46) + 2; i++) {
+      const x = bomen + i * 46;
+      const h = 14 + ((i * 7919) % 10 + 10) % 10;
+      c.fillStyle = (i % 2) ? "#2e6b34" : "#357a3b";
+      c.beginPath();
+      c.arc(x, 112 - h * 0.3, h, 0, Math.PI * 2);
+      c.fill();
+    }
+  }
+
+  function tekenTribune() {
+    // Overkapping met pilaren
     const schuif = -camX * 0.5;
-    c.fillStyle = "#5d4037";
-    c.fillRect(0, 96, W, 60);
-    const kleuren = ["#ff3e5a", "#ffe14d", "#3ef0ff", "#fff", "#5fd35f", "#ff9800"];
+    c.fillStyle = "#6b7a8f";
+    c.fillRect(0, 92, W, 58);
+    c.fillStyle = "#3c4656";
+    c.beginPath();
+    c.moveTo(0, 78); c.lineTo(W, 78); c.lineTo(W, 92); c.lineTo(0, 92);
+    c.fill();
+    c.fillStyle = "#c62828";
+    c.fillRect(0, 74, W, 5);
+    // Publiek: hoofdjes in rijen, sommigen springen
+    const huid = ["#f1c27d", "#e0ac69", "#c68642", "#8d5524", "#ffdbac"];
+    const shirts = ["#ff3e5a", "#ffe14d", "#3ef0ff", "#fff", "#5fd35f", "#ff9800", "#b06cff"];
     for (let rij = 0; rij < 3; rij++) {
-      const off = ((schuif + rij * 7) % 14 + 14) % 14;
-      for (let x = -14; x < W + 14; x += 14) {
-        const n = Math.round((x + off - schuif) / 14) + rij * 5;
-        c.fillStyle = kleuren[((n % 6) + 6) % 6];
+      const off = ((schuif + rij * 6) % 12 + 12) % 12;
+      for (let x = -12; x < W + 12; x += 12) {
+        const n = Math.round((x + off - schuif) / 12) + rij * 5;
+        const nn = ((n % 7) + 7) % 7;
         const spring = (n + Math.floor(tijd * 6)) % 7 === 0 ? -3 : 0;
+        const by = 104 + rij * 15 + spring;
+        c.fillStyle = shirts[nn];
+        c.fillRect(x + off - 4, by + 3, 8, 7);
+        c.fillStyle = huid[nn % 5];
         c.beginPath();
-        c.arc(x + off, 108 + rij * 16 + spring, 5, 0, Math.PI * 2);
+        c.arc(x + off, by, 4, 0, Math.PI * 2);
         c.fill();
       }
+    }
+    for (let i = Math.floor(-schuif / 160) - 1; i < Math.floor((W - schuif) / 160) + 2; i++) {
+      c.fillStyle = "#2c3440";
+      c.fillRect(schuif + i * 160, 79, 5, 71);
     }
     // Spandoeken
     const bord = -camX * 0.8;
     const doeken = ["ジェシー杯", "JESSY CUP 33", "競馬", "KWARK", "がんばれ！", "BOE"];
-    c.fillStyle = "#b71c1c";
+    const doek = c.createLinearGradient(0, 150, 0, 172);
+    doek.addColorStop(0, "#d32f2f");
+    doek.addColorStop(1, "#8e1a1a");
+    c.fillStyle = doek;
     c.fillRect(0, 150, W, 22);
     for (let i = Math.floor(-bord / 200) - 1; i < Math.floor((W - bord) / 200) + 1; i++) {
       const woord = doeken[((i % doeken.length) + doeken.length) % doeken.length];
@@ -574,158 +773,310 @@
     }
   }
 
+  // Groot scherm in het stadion: wie ligt er voorop?
+  function tekenGrootScherm() {
+    const leider = [...race.paarden].sort((a, b) => b.x - a.x)[0];
+    const x = 740, y = 4, w = 210, h = 64;
+    if (banner && banner.t < 4) return; // de commentator gaat voor
+    c.fillStyle = "#111";
+    c.beginPath();
+    c.roundRect(x, y, w, h, 6);
+    c.fill();
+    c.fillStyle = "#08222f";
+    c.fillRect(x + 5, y + 5, w - 10, h - 10);
+    gezicht(leider.k, x + 34, y + 32, 20);
+    tekst("1. " + leider.k.naam, x + 62, y + 22, 7, "#ffe14d", "left");
+    tekst(race.t.toFixed(1) + " SEC", x + 62, y + 42, 7, "#3ef0ff", "left");
+  }
+
   function tekenBaan() {
+    // Gras met maaistroken die met de baan meeschuiven
     c.fillStyle = "#3f8f3a";
     c.fillRect(0, 172, W, H - 172);
-    for (let i = 0; i < 8; i++) {
-      c.fillStyle = i % 2 ? "#4a9a42" : "#438f3c";
-      c.fillRect(0, BAAN_Y + i * BAAN_H - 6, W, BAAN_H);
+    const strook = 80;
+    for (let x = -((camX % (strook * 2)) + strook * 2) % (strook * 2) - strook * 2; x < W; x += strook * 2) {
+      c.fillStyle = "rgba(255, 255, 255, 0.06)";
+      c.fillRect(x, 180, strook, BAAN_Y + 8 * BAAN_H - 184);
     }
-    // Hekken boven en onder
-    c.fillStyle = "#fff";
-    c.fillRect(0, 176, W, 4);
-    c.fillRect(0, BAAN_Y + 8 * BAAN_H - 4, W, 4);
-    for (let x = -((camX % 40) + 40) % 40; x < W; x += 40) {
-      c.fillRect(x, 172, 3, 12);
-      c.fillRect(x, BAAN_Y + 8 * BAAN_H - 8, 3, 12);
+    // Lichte scheidslijntjes tussen de banen
+    c.fillStyle = "rgba(255, 255, 255, 0.1)";
+    for (let i = 1; i < 8; i++) c.fillRect(0, BAAN_Y + i * BAAN_H - 6, W, 1);
+    // Bloemenperk onder het onderste hek
+    const onder = BAAN_Y + 8 * BAAN_H;
+    c.fillStyle = "#2f6e2c";
+    c.fillRect(0, onder, W, H - onder);
+    for (let x = -((camX % 24) + 24) % 24; x < W; x += 24) {
+      const n = Math.round((x + camX) / 24);
+      c.fillStyle = ["#ff5a7a", "#ffe14d", "#fff", "#b06cff"][((n % 4) + 4) % 4];
+      c.beginPath();
+      c.arc(x + 6, onder + 10 + (n % 2) * 5, 3, 0, Math.PI * 2);
+      c.fill();
     }
-    // Afstandspalen (om de 100 eenheden = 200 meter)
+    // Hekken boven en onder, met schaduw
+    [176, onder - 4].forEach((y) => {
+      c.fillStyle = "rgba(0, 0, 0, 0.18)";
+      c.fillRect(0, y + 5, W, 4);
+      for (let x = -((camX % 40) + 40) % 40; x < W; x += 40) {
+        c.fillStyle = "#ddd";
+        c.fillRect(x, y - 2, 3, 12);
+      }
+      c.fillStyle = "#fafafa";
+      c.fillRect(0, y, W, 4);
+    });
+    // Afstandspalen (om de 100 eenheden = 200 meter), rood-wit
     for (let m = 0; m <= LENGTE; m += 100) {
       const x = m * SCHAAL - camX;
-      if (x < -50 || x > W + 50) continue;
-      c.fillStyle = m === LENGTE ? "#fff" : "rgba(255, 255, 255, 0.4)";
-      c.fillRect(x - 2, 180, m === LENGTE ? 6 : 3, BAAN_Y + 8 * BAAN_H - 184);
+      if (x < -60 || x > W + 60) continue;
+      if (m === LENGTE) continue;
+      c.fillStyle = "rgba(255, 255, 255, 0.35)";
+      c.fillRect(x - 1, 180, 2, onder - 184);
+      for (let y = 140; y < 176; y += 8) {
+        c.fillStyle = (y / 8) % 2 ? "#e53935" : "#fff";
+        c.fillRect(x - 3, y, 6, 8);
+      }
       const rest = (LENGTE - m) * 2;
-      if (m < LENGTE) tekst(m === 0 ? "START" : rest + "M", x - (m === 0 ? 20 : 30), 194, 7, "#fff", "left");
+      c.fillStyle = "#fff";
+      c.fillRect(x - 26, 128, 52, 14);
+      c.font = `7px ${Arcade.FONT}`;
+      c.textAlign = "center";
+      c.textBaseline = "middle";
+      c.fillStyle = "#c62828";
+      c.fillText(m === 0 ? "START" : rest + "M", x, 136);
     }
-    // Finish
+    // Finish: dambordlijn en een grote paal met "goal"
     const fx = LENGTE * SCHAAL - camX;
     if (fx > -60 && fx < W + 60) {
+      for (let y = 180; y < onder - 4; y += 10) {
+        for (let k = 0; k < 2; k++) {
+          c.fillStyle = (y / 10 + k) % 2 ? "#111" : "#fff";
+          c.fillRect(fx - 5 + k * 5, y, 5, 10);
+        }
+      }
       c.fillStyle = "#ffe14d";
-      c.fillRect(fx - 4, 120, 10, 60);
+      c.fillRect(fx - 3, 104, 6, 76);
       c.beginPath();
-      c.arc(fx + 1, 116, 16, 0, Math.PI * 2);
+      c.arc(fx, 100, 18, 0, Math.PI * 2);
       c.fill();
       c.font = "bold 12px sans-serif";
       c.fillStyle = "#c62828";
       c.textAlign = "center";
-      c.fillText("ゴール", fx + 1, 117);
+      c.textBaseline = "middle";
+      c.fillText("ゴール", fx, 101);
     }
+  }
+
+  // --- Paarden ---
+  // Eén been met een knie, in galop. Voorbenen buigen naar achteren, achterbenen naar voren.
+  function been(hx, hy, fase, kleur, voor, rent) {
+    const zwaai = rent ? Math.sin(fase) * 0.65 : 0.05;
+    const buig = rent ? (voor ? Math.max(0, -Math.sin(fase + 0.9)) * 1.3 : -Math.max(0, Math.sin(fase + 0.9)) * 1.1) : 0;
+    const kx = hx + Math.sin(zwaai) * 12, ky = hy + Math.cos(zwaai) * 12;
+    const hoek = zwaai + buig;
+    const vx = kx + Math.sin(hoek) * 13, vy = ky + Math.cos(hoek) * 13;
+    c.strokeStyle = kleur;
+    c.lineCap = "round";
+    c.lineWidth = 6;
+    c.beginPath(); c.moveTo(hx, hy); c.lineTo(kx, ky); c.stroke();
+    c.lineWidth = 4;
+    c.beginPath(); c.moveTo(kx, ky); c.lineTo(vx, vy); c.stroke();
+    c.fillStyle = "#222";
+    c.fillRect(vx - 3, vy - 1, 7, 4);
   }
 
   function tekenPaard(p, x, y) {
     const k = p.k;
-    const s = k.klein ? 0.75 : 1;
+    const s = k.klein ? 0.78 : 1;
     const rent = p.v > 3;
+    const galop = rent ? Math.sin(p.fase * 2) * 2 : 0; // op en neer
+    // Schaduw op het gras
+    c.fillStyle = "rgba(0, 0, 0, 0.22)";
+    c.beginPath();
+    c.ellipse(x + 2, y + 26 * s, 34 * s, 5, 0, 0, Math.PI * 2);
+    c.fill();
     c.save();
-    c.translate(x, y);
+    c.translate(x, y + galop);
     if (p.slip > 0) c.rotate(Math.sin(tijd * 18) * 0.35);
     c.scale(s, s);
-    const lijf = k.koe ? "#fafafa" : k.vacht;
-    const donker = k.koe ? "#bbb" : "rgba(0, 0, 0, 0.35)";
-    // Benen in galop
+    const vacht = k.koe ? "#f5f5f5" : k.vacht;
+    const donker = k.koe ? "#cfcfcf" : tint(vacht, -0.35);
+    // Achterste benen (verder weg, donkerder)
+    been(-22, 4, p.fase + 1.6, donker, false, rent);
+    been(18, 4, p.fase + 4.7, donker, true, rent);
+    // Staart met losse haren
+    c.strokeStyle = k.koe ? "#444" : tint(vacht, -0.6);
     c.lineCap = "round";
-    [[-20, 0], [-12, 1.6], [14, 3.1], [22, 4.7]].forEach(([bx, off], i) => {
-      const a = rent ? Math.sin(p.fase + off) * 0.7 : 0;
-      c.strokeStyle = i % 2 ? lijf : donker;
-      c.lineWidth = 5;
+    for (let i = 0; i < 3; i++) {
+      c.lineWidth = 3;
       c.beginPath();
-      c.moveTo(bx, 4);
-      c.lineTo(bx + Math.sin(a) * 15, 4 + Math.cos(a) * 18);
+      c.moveTo(-30, -6);
+      c.quadraticCurveTo(-44, -6 + Math.sin(tijd * 12 + i) * 5, -46 - i * 2, 8 + i * 3);
       c.stroke();
-    });
-    // Staart
-    c.strokeStyle = k.koe ? "#333" : "#2b1a10";
-    c.lineWidth = 4;
-    c.beginPath();
-    c.moveTo(-28, -4);
-    c.quadraticCurveTo(-40, -2 + Math.sin(tijd * 12) * 4, -42, 10);
-    c.stroke();
-    // Lijf
+    }
+    // Lijf met schaduw van boven naar onder
+    const lijf = c.createLinearGradient(0, -16, 0, 14);
+    lijf.addColorStop(0, tint(vacht, 0.25));
+    lijf.addColorStop(1, tint(vacht, -0.25));
     c.fillStyle = lijf;
     c.beginPath();
-    c.ellipse(0, -2, 30, 12, 0, 0, Math.PI * 2);
+    c.moveTo(-30, -6);
+    c.bezierCurveTo(-20, -16, 10, -16, 22, -11);
+    c.bezierCurveTo(31, -6, 32, 6, 24, 10);
+    c.bezierCurveTo(10, 14, -16, 14, -26, 10);
+    c.bezierCurveTo(-36, 6, -36, -2, -30, -6);
     c.fill();
     if (k.koe) {
       c.fillStyle = "#222";
-      [[-14, -6, 7], [6, 2, 6], [16, -8, 5]].forEach(([vx, vy, r]) => { c.beginPath(); c.arc(vx, vy, r, 0, Math.PI * 2); c.fill(); });
+      [[-16, -4, 7], [4, 4, 6], [14, -8, 5], [-24, 6, 4]].forEach(([vx, vy, r]) => { c.beginPath(); c.ellipse(vx, vy, r, r * 0.8, 0.4, 0, Math.PI * 2); c.fill(); });
+      c.fillStyle = "#f8bbd0";
+      c.beginPath(); c.ellipse(-6, 12, 6, 3, 0, 0, Math.PI * 2); c.fill(); // uier
     }
-    // Hals en hoofd
+    // Hals
     c.fillStyle = lijf;
     c.beginPath();
-    c.moveTo(18, -10); c.lineTo(30, -28); c.lineTo(38, -24); c.lineTo(28, -2);
+    c.moveTo(12, -12);
+    c.quadraticCurveTo(22, -30, 30, -40);
+    c.lineTo(38, -36);
+    c.quadraticCurveTo(32, -18, 28, 2);
     c.fill();
+    // Hoofd
+    c.fillStyle = k.koe ? "#f5f5f5" : tint(vacht, 0.1);
     c.beginPath();
-    c.ellipse(40, -26, 11, 6, 0.35, 0, Math.PI * 2);
+    c.moveTo(30, -42);
+    c.quadraticCurveTo(44, -40, 54, -30);
+    c.quadraticCurveTo(55, -24, 49, -23);
+    c.quadraticCurveTo(40, -24, 34, -28);
     c.fill();
     if (k.koe) {
       c.fillStyle = "#f8bbd0";
-      c.beginPath(); c.ellipse(48, -23, 5, 4, 0, 0, Math.PI * 2); c.fill();
-      c.strokeStyle = "#ddd"; c.lineWidth = 3;
-      c.beginPath(); c.moveTo(34, -32); c.lineTo(30, -40); c.stroke();
+      c.beginPath(); c.ellipse(52, -26, 5, 4, 0, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = "#e0d6c0"; c.lineWidth = 3;
+      c.beginPath(); c.moveTo(33, -43); c.quadraticCurveTo(30, -50, 34, -54); c.stroke();
     } else {
-      c.fillStyle = "#2b1a10";
-      c.fillRect(24, -30, 8, 4); // manen
+      // Oor, manen en hoofdstel
+      c.fillStyle = tint(vacht, -0.2);
+      c.beginPath(); c.moveTo(32, -42); c.lineTo(31, -50); c.lineTo(37, -43); c.fill();
+      c.strokeStyle = tint(vacht, -0.6);
+      c.lineWidth = 3;
+      for (let i = 0; i < 5; i++) {
+        const mx = 13 + i * 4, my = -14 - i * 6;
+        c.beginPath();
+        c.moveTo(mx, my);
+        c.lineTo(mx - 6 - Math.sin(tijd * 14 + i) * 2, my + 2);
+        c.stroke();
+      }
+      c.strokeStyle = k.kleur;
+      c.lineWidth = 2;
+      c.beginPath(); c.moveTo(36, -38); c.lineTo(44, -27); c.lineTo(52, -28); c.stroke();
     }
-    c.fillStyle = "#000";
-    c.fillRect(40, -29, 3, 3);
-    // Dekje met nummer
+    c.fillStyle = "#111";
+    c.beginPath(); c.arc(41, -35, 1.8, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.arc(52, -27, 1.2, 0, Math.PI * 2); c.fill();
+    // Voorste benen
+    been(-18, 4, p.fase, vacht === "#fafafa" ? "#e8e8e8" : vacht, false, rent);
+    been(22, 4, p.fase + 3.1, vacht === "#fafafa" ? "#e8e8e8" : vacht, true, rent);
+    // Dekje met nummer en zadel
     c.fillStyle = k.kleur;
-    c.fillRect(-12, -14, 22, 14);
+    c.beginPath();
+    c.roundRect(-14, -16, 24, 15, 3);
+    c.fill();
     c.font = `8px ${Arcade.FONT}`;
     c.textAlign = "center";
     c.textBaseline = "middle";
-    c.fillStyle = k.kleur === "#fafafa" || k.kleur === "#ffe14d" ? "#000" : "#fff";
-    c.fillText(String(p.i + 1), -1, -7);
-    c.restore();
-    // Jockey (de koe rijdt zichzelf)
+    c.fillStyle = k.kleur === "#fafafa" || k.kleur === "#ffe14d" || k.kleur === "#3ef0ff" ? "#000" : "#fff";
+    c.fillText(String(p.i + 1), -2, -8);
     if (!k.koe) {
-      c.fillStyle = k.kleur;
-      c.fillRect(x - 6, y - 26 * s, 12, 14);
-      gezicht(k, x, y - 34 * s, 11);
+      c.fillStyle = "#4e342e";
+      c.beginPath(); c.ellipse(-1, -16, 11, 3.5, 0, 0, Math.PI * 2); c.fill();
+      // Jockey: gehurkt, in zijn eigen kleuren
+      c.strokeStyle = "#f5f5f5";
+      c.lineWidth = 4;
+      c.beginPath(); c.moveTo(-2, -18); c.lineTo(8, -15); c.lineTo(4, -7); c.stroke(); // been
+      c.strokeStyle = k.kleur;
+      c.lineWidth = 9;
+      c.beginPath(); c.moveTo(-3, -20); c.lineTo(9, -32); c.stroke(); // romp
+      c.lineWidth = 4;
+      const zweep = rent ? Math.sin(p.fase * 2) * 3 : 0;
+      c.beginPath(); c.moveTo(8, -31); c.lineTo(20, -26 + zweep); c.stroke(); // arm naar de teugels
+      c.strokeStyle = "#333";
+      c.lineWidth = 1;
+      c.beginPath(); c.moveTo(20, -26 + zweep); c.lineTo(38, -35); c.stroke(); // teugels
+    }
+    c.restore();
+    // Gezicht van de jockey (niet geschaald, zodat je het goed ziet). De koe rijdt zichzelf.
+    if (!k.koe) {
+      const gx = x + 13 * s, gy = y + galop - 42 * s;
+      gezicht(k, gx, gy, 11);
+      if (k.gezicht && k.gezicht !== jessy) {
+        // Cap in de kleuren van het paard
+        c.fillStyle = k.kleur;
+        c.beginPath();
+        c.arc(gx, gy - 1, 12, Math.PI * 1.05, Math.PI * 1.95);
+        c.fill();
+        c.fillRect(gx, gy - 6, 15, 3);
+      }
     } else {
-      c.font = "18px serif";
+      c.font = "16px serif";
       c.textAlign = "center";
-      c.fillText("🐄", x - 2, y - 26);
+      c.textBaseline = "middle";
+      c.fillText("🐄", x + 44, y + galop - 50);
     }
   }
 
   function tekenRace() {
+    tekenLucht();
     tekenTribune();
     tekenBaan();
+    // Stofwolkjes achter de hoeven
+    stof.forEach((d) => {
+      c.fillStyle = `rgba(214, 190, 140, ${0.55 * (1 - d.t / d.max)})`;
+      c.beginPath();
+      c.arc(d.x - camX, d.y, d.r * (1 + d.t * 2), 0, Math.PI * 2);
+      c.fill();
+    });
     const paarden = race.paarden;
     paarden.forEach((p) => {
       const x = p.x * SCHAAL - camX + 40;
-      const y = BAAN_Y + p.i * BAAN_H + 18;
-      if (x < -80 || x > W + 80) return;
+      const y = BAAN_Y + p.i * BAAN_H + 12;
+      if (x < -90 || x > W + 90) return;
+      // Supporters: de foto's van wie op dit paard wedt, rennen mee
+      spelers.filter((s) => s.paard === p.i).forEach((s, j) => {
+        spelerFoto(s, x - 58 - j * 20, y - 22 + Math.sin(tijd * 10 + j) * 3, 9);
+      });
       // Snelheidsstrepen bij turbo
       if (p.turbo > 0) {
-        c.strokeStyle = "rgba(255, 255, 255, 0.7)";
+        c.strokeStyle = "rgba(255, 255, 255, 0.75)";
         c.lineWidth = 2;
         for (let i = 0; i < 4; i++) {
           c.beginPath();
-          c.moveTo(x - 40 - i * 12, y - 10 + i * 6);
-          c.lineTo(x - 70 - i * 12 - Math.random() * 20, y - 10 + i * 6);
+          c.moveTo(x - 44 - i * 10, y - 12 + i * 7);
+          c.lineTo(x - 80 - i * 10 - Math.random() * 20, y - 12 + i * 7);
           c.stroke();
         }
       }
       if (p.glitch > 0) {
-        // Glitch: rood/blauw verschoven kopietjes
-        c.globalAlpha = 0.5;
-        c.save(); c.translate(-6, 0); tekenPaard(p, x, y); c.restore();
-        c.save(); c.translate(6, 0); tekenPaard(p, x, y); c.restore();
+        // Glitch: verschoven kopietjes
+        c.globalAlpha = 0.45;
+        c.save(); c.translate(-7, 0); tekenPaard(p, x, y); c.restore();
+        c.save(); c.translate(7, 0); tekenPaard(p, x, y); c.restore();
         c.globalAlpha = 1;
       }
       tekenPaard(p, x, y);
+      if (p.flits > 0) {
+        c.strokeStyle = `rgba(255, 225, 77, ${p.flits / 0.6})`;
+        c.lineWidth = 3;
+        c.beginPath();
+        c.arc(x + 6, y - 14, 46, 0, Math.PI * 2);
+        c.stroke();
+      }
       if (p.icoonTijd > 0 && p.icoon) {
         c.font = "22px serif";
         c.textAlign = "center";
         c.textBaseline = "middle";
-        c.fillText(p.icoon, x + 6, y - 60 + Math.sin(tijd * 8) * 3);
+        c.fillText(p.icoon, x + 6, y - 66 + Math.sin(tijd * 8) * 3);
       }
       if (p.klaar !== null) {
         const plek = race.volgorde.indexOf(p.i) + 1;
-        tekst(plek + "E", x + 60, y - 6, 10, plek === 1 ? "#ffe14d" : "#fff");
+        tekst(plek + "E", x + 64, y - 6, 10, plek === 1 ? "#ffe14d" : "#fff");
       }
     });
     // Overstekende koe
@@ -733,83 +1084,128 @@
       const k = 1 - race.effect.oversteek / 1.3;
       c.font = "60px serif";
       c.textAlign = "center";
+      c.textBaseline = "middle";
       c.fillText("🐄", W * 0.55, 190 + k * 340);
     }
     // Regen
     if (regenDruppels.length) {
+      c.fillStyle = "rgba(40, 60, 90, 0.18)";
+      c.fillRect(0, 0, W, H);
       c.strokeStyle = "rgba(200, 220, 255, 0.7)";
       c.lineWidth = 2;
       regenDruppels.forEach((d) => { c.beginPath(); c.moveTo(d.x, d.y); c.lineTo(d.x - 4, d.y + 14); c.stroke(); });
     }
     // Mini-kaart onderaan
-    c.fillStyle = "rgba(0, 0, 0, 0.6)";
+    c.fillStyle = "rgba(0, 0, 0, 0.65)";
     c.fillRect(0, H - 40, W, 40);
-    c.fillStyle = "#666";
-    c.fillRect(60, H - 21, W - 120, 3);
+    c.fillStyle = "#555";
+    c.beginPath();
+    c.roundRect(60, H - 23, W - 120, 6, 3);
+    c.fill();
     c.fillStyle = "#ffe14d";
     c.fillRect(W - 62, H - 32, 4, 24);
     paarden.forEach((p) => {
       const x = 60 + Math.min(1, p.x / LENGTE) * (W - 120);
+      const y = H - 20 - (p.i % 2 ? 7 : -7);
+      c.fillStyle = "#111";
+      c.beginPath();
+      c.arc(x, y, 9, 0, Math.PI * 2);
+      c.fill();
       c.fillStyle = p.k.kleur;
       c.beginPath();
-      c.arc(x, H - 20 - (p.i % 2 ? 6 : -6), 8, 0, Math.PI * 2);
+      c.arc(x, y, 7.5, 0, Math.PI * 2);
       c.fill();
       c.font = `7px ${Arcade.FONT}`;
       c.textAlign = "center";
+      c.textBaseline = "middle";
       c.fillStyle = p.k.kleur === "#fafafa" || p.k.kleur === "#ffe14d" || p.k.kleur === "#3ef0ff" ? "#000" : "#fff";
-      c.fillText(String(p.i + 1), x, H - 19 - (p.i % 2 ? 6 : -6));
+      c.fillText(String(p.i + 1), x, y + 1);
     });
+    tekenGrootScherm();
     // Commentator-banner
     if (banner && banner.t < 4) {
-      c.fillStyle = "rgba(0, 0, 0, 0.75)";
-      c.fillRect(0, 0, W, 64);
+      const verloop = c.createLinearGradient(0, 0, 0, 66);
+      verloop.addColorStop(0, "rgba(10, 10, 30, 0.92)");
+      verloop.addColorStop(1, "rgba(10, 10, 30, 0.7)");
+      c.fillStyle = verloop;
+      c.fillRect(0, 0, W, 66);
+      c.fillStyle = "#c62828";
+      c.fillRect(0, 64, W, 3);
       c.font = "bold 22px sans-serif";
       c.textAlign = "center";
       c.textBaseline = "middle";
       c.fillStyle = "#ffe14d";
-      c.fillText(banner.jp, W / 2, 20);
-      tekst(banner.nl, W / 2, 48, banner.nl.length > 50 ? 8 : 10, "#fff");
+      c.fillText(banner.jp, W / 2, 21);
+      tekst(banner.nl, W / 2, 49, banner.nl.length > 50 ? 8 : 10, "#fff");
     }
-    if (fotofinish && !race.volgorde.length) tekst("FOTOFINISH!", W / 2, 90, 16, "#ff3ea5");
-    // Aftellen
-    if (aftellen > 0) {
-      c.fillStyle = "rgba(0, 0, 0, 0.35)";
+    if (fotofinish && !race.volgorde.length) {
+      c.fillStyle = "rgba(255, 255, 255, 0.12)";
       c.fillRect(0, 0, W, H);
-      tekst(aftellen > 3 ? "KLAAR?" : String(Math.ceil(aftellen)), W / 2, H / 2, 60, "#ffe14d");
-      // Startboxen
-      c.fillStyle = "#9e9e9e";
-      for (let i = 0; i < 8; i++) c.fillRect(-camX + 60, BAAN_Y + i * BAAN_H - 6, 8, BAAN_H - 4);
+      tekst("FOTOFINISH!", W / 2, 96, 18, "#ff3ea5");
+    }
+    // Aftellen bij de startboxen
+    if (aftellen > 0) {
+      for (let i = 0; i < 8; i++) {
+        const bx = -camX + 64, by = BAAN_Y + i * BAAN_H - 6;
+        c.fillStyle = "#b0bec5";
+        c.fillRect(bx, by, 10, BAAN_H - 2);
+        c.fillStyle = "#37474f";
+        c.fillRect(bx, by, 10, 4);
+      }
+      c.fillStyle = "rgba(0, 0, 0, 0.3)";
+      c.fillRect(0, 0, W, H);
+      tekst(aftellen > 3 ? "KLAAR?" : String(Math.ceil(aftellen)), W / 2, H / 2, 64, "#ffe14d");
     }
   }
 
   // --- Uitslag ---
   function tekenUitslag() {
-    c.fillStyle = "#0b0b1e";
-    c.fillRect(0, 0, W, H);
+    tekenAvond();
     const w = KARAKTERS[uitslag.volgorde[0]];
     tekst("UITSLAG JESSY CUP", W / 2, 30, 20, "#ffe14d");
     tekst(w.naam + " WINT!", W / 2, 60, 12, w.kleur === "#fafafa" ? "#fff" : w.kleur);
-    // Einduitslag
-    uitslag.volgorde.forEach((i, plek) => {
+    // Podium voor de top 3
+    const PODIUM = [[0, 160, 104, "#ffd54f"], [1, 40, 76, "#cfd8dc"], [2, 280, 54, "#d7a86e"]]; // goud in het midden
+    PODIUM.forEach(([plek, x, h, kleur]) => {
+      const i = uitslag.volgorde[plek];
       const k = KARAKTERS[i];
-      const y = 100 + plek * 52;
-      c.fillStyle = plek === 0 ? "rgba(255, 225, 77, 0.2)" : "rgba(255, 255, 255, 0.05)";
-      c.fillRect(20, y - 22, 400, 46);
-      tekst((plek + 1) + ".", 30, y, 12, plek === 0 ? "#ffe14d" : "#fff", "left");
-      gezicht(k, 92, y, 16);
-      tekst(k.naam, 118, y - 6, 8, "#fff", "left");
-      tekst(KANSEN[i].toFixed(1) + "X", 410, y - 6, 8, "#888", "right");
+      const top = 270 - h;
+      const blok = c.createLinearGradient(0, top, 0, 270);
+      blok.addColorStop(0, tint(kleur, 0.2));
+      blok.addColorStop(1, tint(kleur, -0.3));
+      c.fillStyle = blok;
+      c.fillRect(x, top, 120, h);
+      tekst(String(plek + 1), x + 60, top + 22, 22, "#fff");
+      gezicht(k, x + 60, top - 30, plek === 0 ? 28 : 22);
+      tekst(k.naam, x + 60, top + h - 12, 6, "#222");
+      if (plek === 0) {
+        c.font = "26px serif";
+        c.textAlign = "center";
+        c.textBaseline = "middle";
+        c.fillText("🏆", x + 104, top - 52);
+      }
+    });
+    // Plek 4 t/m 8
+    uitslag.volgorde.slice(3).forEach((i, n) => {
+      const k = KARAKTERS[i];
+      const y = 300 + n * 46;
+      kaart(20, y - 20, 400, 40, k.kleur, false);
+      tekst((n + 4) + ".", 34, y, 10, "#fff", "left");
+      gezicht(k, 88, y, 14);
+      tekst(k.naam, 112, y - 6, 8, "#fff", "left");
       const t = uitslag.tijden[i];
-      tekst(t !== null ? t.toFixed(1) + " SEC" : "NIET BINNEN", 118, y + 10, 6, "#aaa", "left");
+      tekst(t !== null ? t.toFixed(1) + " SEC" : "NIET BINNEN", 112, y + 10, 6, "#aab", "left");
+      tekst(KANSEN[i].toFixed(1) + "X", 410, y, 8, "#889", "right");
     });
     // Wie drinkt er?
     tekst("WIE DRINKT?", 690, 96, 12, "#3ef0ff");
     uitslag.regels.forEach((r, i) => {
       const y = 126 + i * 50;
-      c.fillStyle = "rgba(255, 255, 255, 0.06)";
-      c.fillRect(450, y - 18, 490, 46);
-      tekst(r.s.naam, 462, y - 4, 9, "#fff", "left");
-      tekst(r.redenen.join(" - ").slice(0, 52), 462, y + 14, 6, "#aaa", "left");
+      const goed = r.uitdelen > 0;
+      kaart(450, y - 20, 490, 46, goed ? "#5fd35f" : r.drinken ? "#ff5a5a" : "#ffe14d", goed);
+      spelerFoto(r.s, 474, y + 3, 15);
+      tekst(r.s.naam, 498, y - 4, 9, "#fff", "left");
+      tekst(r.redenen.join(" - ").slice(0, 48), 498, y + 14, 6, "#aab", "left");
       if (r.uitdelen) tekst("DEEL " + r.uitdelen + " UIT", 930, y - 4, 10, "#5fd35f", "right");
       if (r.drinken) tekst("DRINK " + r.drinken, 930, r.uitdelen ? y + 14 : y - 4, 10, "#ff5a5a", "right");
       if (!r.uitdelen && !r.drinken) tekst("GERED!", 930, y - 4, 10, "#ffe14d", "right");
