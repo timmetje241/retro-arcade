@@ -41,6 +41,8 @@ Bij het eerste bezoek vult iedereen een naam in. Die wordt per apparaat onthoude
 | Jessy's Bar | B / knop RECEPTEN | Receptenboek openen |
 | Jessy QWOP | Q / W, O / P (of de knoppen op het scherm) | Dijen, kuiten |
 | Jessy QWOP | R | Opnieuw beginnen |
+| Slokken Derby | Muis / vinger | Spelers, paarden en inzet kiezen |
+| Slokken Derby | Enter / spatie | Race starten, verder |
 | Overal | M | Geluid aan/uit |
 | Menu | H | Highscores bekijken |
 
@@ -62,6 +64,8 @@ Bij het eerste bezoek vult iedereen een naam in. Die wordt per apparaat onthoude
   - **Score per cocktail**: precieze mix (max 60) + juiste glas, ijs, shaken/roeren en garnering (4 x 10) + snelheidsbonus (max 25) + bonus voor een reeks perfecte cocktails (+10, +20, ...) + 25 per nieuw ontdekt recept. De hoogste totaalscore van de avond komt in de highscores.
 
 - **Jessy QWOP**: naar het beruchte flashspel QWOP. Jessy (met hemdje nummer 33) moet de 100 meter lopen. Q en W bewegen zijn dijen, O en P zijn kuiten. Met zijn hoofd of handen op de grond is hij gevallen. **Highscore:** wie de finish haalt, staat altijd boven wie viel, en daarbinnen wint de snelste tijd. Wie viel, wordt gerangschikt op afstand (bv. "8.7 M"). Op een telefoon staan de vier knoppen op het scherm.
+
+- **Slokken Derby**: een feestspel voor met z'n allen, naar de Japanse paardenrace-filmpjes. Voeg spelers toe, kies per speler een deelnemer en zet in met slokken (1 tot 10). Een Japanse commentator (met Nederlandse ondertiteling) verslaat de race over 2000 meter, compleet met fanfare, de berg Fuji en een fotofinish in slow motion. De 8 deelnemers: Jessy 33, Lisa, de Poolse Koe, Kwark Karel, Bierbuik Bert, Vibecoder 3000, Beertje (4) op een pony en Zijne Majesteit. Elk heeft eigen streken (de koe zegt boe en staat stil, Beertje plukt bloemetjes, de Majesteit zwaait naar het volk) en tijdens de race gebeurt er van alles: bananen, regen, rugwind, een overstekende koe, een vibecode-bug die twee paarden laat wisselen en een proost-pauze. **Uitbetaling:** wie op de winnaar zette, deelt inzet x odds uit; de nummer 2 is gered; de rest drinkt zijn inzet. Wint Jessy, dan drinkt iedereen 1 extra op de jarige. De odds worden vooraf uitgerekend door de race 400 keer stiekem te simuleren. Geen highscore, wel een stand per speler (gedronken en uitgedeeld).
 
 ## Verrassingen
 

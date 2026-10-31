@@ -95,6 +95,15 @@ window.ARCADE_CONFIG = {
       kleur: "#3ef0ff",
       icoon: "🏃",
       scoreSoort: "100m"  // snelste tijd wint; wie viel, telt in meters
+    },
+    {
+      id: "derby",
+      naam: "SLOKKEN DERBY",
+      beschrijving: "Japanse paardenrace: zet in met slokken bier, met z'n allen",
+      pad: "games/derby/index.html",
+      kleur: "#f2a900",
+      icoon: "🏇",
+      geenRecord: true  // feestspel voor met z'n allen, geen highscore
     }
   ]
 };
