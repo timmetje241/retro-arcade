@@ -14,6 +14,18 @@ python -m http.server 8765
 
 Ga daarna naar http://localhost:8765.
 
+## Wachtwoord
+
+Bij het eerste bezoek vraagt de arcade om een wachtwoord (vraag het aan Tim). Elk apparaat onthoudt het daarna. Let op: dit is een slot op de voordeur, geen echte beveiliging. De code en de foto's staan openbaar op GitHub.
+
+Een ander wachtwoord instellen: reken de SHA-256-hash uit en zet die bij `WACHTWOORD_HASH` in `js/arcade.js`:
+
+```bash
+python -c "import hashlib; print(hashlib.sha256('NIEUW WACHTWOORD'.encode()).hexdigest())"
+```
+
+Iedereen moet het nieuwe wachtwoord dan opnieuw invullen.
+
 ## Spelersnaam
 
 Bij het eerste bezoek vult iedereen een naam in. Die wordt per apparaat onthouden (in de browser), staat in het menu ("SPELER: ...", klik om te wijzigen) en wordt alvast ingevuld bij een highscore.

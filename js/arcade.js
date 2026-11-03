@@ -636,7 +636,7 @@ window.Arcade = (function () {
   // Het spel staat stil bij pauze, bij de naamvraag en bij het highscore-venster. Dat laatste kan
   // even na een game over verschijnen (eerst wordt online de top 10 opgehaald), dus soms al in een nieuw potje.
   function staatStil() {
-    return gepauzeerd || gebruikerVraagOpen() || (!!naamLaag && naamLaag.classList.contains("open"));
+    return gepauzeerd || slotOpen() || gebruikerVraagOpen() || (!!naamLaag && naamLaag.classList.contains("open"));
   }
 
   // Hoofdlus: roept elke frame update(dt) en teken() aan
@@ -733,7 +733,68 @@ window.Arcade = (function () {
     }
   }, true);
 
-  if (!gebruikersnaam()) vraagGebruikersnaam();
+  // --- Wachtwoord: een simpel slot op de voordeur. Geen echte beveiliging (de code staat openbaar op GitHub),
+  // maar wie alleen de link heeft, komt er niet zomaar in. Hier staat alleen de SHA-256-hash van het wachtwoord;
+  // een nieuw wachtwoord? Zie "Wachtwoord" in de README.
+  const WACHTWOORD_HASH = "ef84ea1797b5da68c421381d9a06caafc50a8ae4bdd9364a09b10fa4c5b6e5d2";
+  let slotLaag = null;
+
+  function slotOpen() {
+    return !!slotLaag;
+  }
+
+  async function sha256(tekst) {
+    const buffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(tekst));
+    return [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  function toonSlot(binnen) {
+    slotLaag = document.createElement("div");
+    slotLaag.style.cssText = `position: fixed; inset: 0; z-index: 50; display: flex; align-items: center;
+      justify-content: center; background: #0b0b1e; font-family: ${FONT}; padding: 16px;`;
+    slotLaag.innerHTML = `
+      <form style="background: #15153a; border: 4px solid #3ef0ff; box-shadow: 8px 8px 0 #000; padding: 28px 22px;
+        display: flex; flex-direction: column; gap: 16px; width: min(380px, 100%); text-align: center;">
+        <h2 style="margin: 0; font-size: 18px; color: #ffe14d; text-shadow: 3px 3px 0 #ff3ea5; line-height: 1.5;">JESSY'S ARCADE</h2>
+        <p style="margin: 0; font-size: 11px; color: #fff; line-height: 2;">🔒 WACHTWOORD?</p>
+        <input name="wachtwoord" type="password" autocomplete="current-password" aria-label="Wachtwoord"
+          style="font: 16px ${FONT_ATTR}; text-align: center; padding: 12px; background: #0b0b1e;
+          color: #ffe14d; border: 3px solid #ffe14d; outline: none;">
+        <p class="fout" style="margin: 0; font-size: 9px; color: #ff5a5a; min-height: 9px;"></p>
+        <button type="submit" style="font: 12px ${FONT_ATTR}; color: #0b0b1e; background: #3ef0ff; border: 3px solid #000;
+          padding: 14px 10px; cursor: pointer;">NAAR BINNEN</button>
+        <p style="margin: 0; font-size: 8px; color: #8a8aa8; line-height: 1.8;">ALLEEN VOOR VRIENDEN VAN JESSY<br>DIT APPARAAT ONTHOUDT HET</p>
+      </form>`;
+    document.body.appendChild(slotLaag);
+    const formulier = slotLaag.querySelector("form");
+    formulier.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if ((await sha256(formulier.wachtwoord.value)) !== WACHTWOORD_HASH) {
+        slotLaag.querySelector(".fout").textContent = "FOUT WACHTWOORD";
+        formulier.wachtwoord.select();
+        toon({ type: "square", van: 200, naar: 120, duur: 0.25, volume: 0.1 });
+        return;
+      }
+      bewaar("toegang", WACHTWOORD_HASH);
+      slotLaag.remove();
+      slotLaag = null;
+      toon({ type: "square", van: 660, naar: 1320, duur: 0.15, volume: 0.1 });
+      binnen();
+    });
+    setTimeout(() => formulier.wachtwoord.focus(), 50);
+  }
+
+  // Zolang het slot erop zit, horen het menu en de spellen niets van je toetsen (typen in het vak werkt gewoon)
+  window.addEventListener("keydown", (e) => {
+    if (slotOpen()) e.stopImmediatePropagation();
+  }, true);
+
+  function naToegang() {
+    if (!gebruikersnaam()) vraagGebruikersnaam();
+  }
+  // Zonder crypto.subtle (heel oude browser) kan het slot niet controleren; dan maar gewoon naar binnen
+  if (lees("toegang", "") === WACHTWOORD_HASH || !(window.crypto && crypto.subtle)) naToegang();
+  else toonSlot(naToegang);
 
   if (IS_SPEL) maakPauzeMenu();
 
